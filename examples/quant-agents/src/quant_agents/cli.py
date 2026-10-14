@@ -1,14 +1,18 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import sys
+from collections import defaultdict
 from datetime import date
 from pathlib import Path
 
 from .backtest import equity_to_metrics, momentum_signal, run_backtest, synthetic_prices
 from .consensus import build_consensus
 from .ingest import drop_stale, parse_calls
+from .pdf_extract import extract_call, read_pdf_text
 from .risk import PortfolioState, RiskPolicy
+from .validation import evaluate, summarize
 from .workflow import run
 
 
@@ -45,6 +49,55 @@ def _cmd_backtest(a: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_extract(a: argparse.Namespace) -> int:
+    """Folder of reports named TICKER__BROKER__YYYY-MM-DD.(pdf|txt) -> call lines on stdout."""
+    ok = refused = 0
+    for f in sorted(Path(a.folder).iterdir()):
+        if f.suffix.lower() not in (".pdf", ".txt"):
+            continue
+        try:
+            ticker, broker, day = f.stem.split("__")
+            published = date.fromisoformat(day)
+        except ValueError:
+            print(f"# SKIP {f.name}: name must be TICKER__BROKER__YYYY-MM-DD", file=sys.stderr)
+            refused += 1
+            continue
+        text = read_pdf_text(f) if f.suffix.lower() == ".pdf" else f.read_text(errors="ignore")
+        ex = extract_call(text, ticker, broker.replace("_", " "), published, source=f.name)
+        if ex.call is None:
+            print(f"# REFUSED {f.name}: {'; '.join(ex.reasons)}", file=sys.stderr)
+            refused += 1
+            continue
+        c = ex.call
+        px = f" | cmp {c.price:g}" if c.price else ""
+        print(f"{c.published} | {c.ticker} | {c.broker} | {c.rating.value} | target {c.target:g}{px} | {f.name.replace(' ', '_')}")
+        ok += 1
+    print(f"# extracted={ok} refused={refused}", file=sys.stderr)
+    return 0
+
+
+def _load_prices(path: str) -> dict[str, list[tuple[date, float]]]:
+    out: dict[str, list[tuple[date, float]]] = defaultdict(list)
+    with open(path, newline="") as fh:
+        for row in csv.DictReader(fh):
+            out[row["ticker"].upper()].append((date.fromisoformat(row["date"]), float(row["close"])))
+    return {t: sorted(v) for t, v in out.items()}
+
+
+def _cmd_validate(a: argparse.Namespace) -> int:
+    calls = parse_calls(Path(a.calls).read_text()).calls
+    outcomes = evaluate(calls, _load_prices(a.prices), a.horizon)
+    print(f"calls={len(calls)} scored={len(outcomes)} (unscored: missing price/history or window not finished)")
+    s = summarize(outcomes)
+    lo, mid, hi = s.bucket_realized_pct
+    print(f"mean implied upside {s.mean_implied_pct:.1f}% | mean realized {s.mean_realized_pct:.1f}% | overstatement {s.overstatement_pct:.1f} pts")
+    print(f"target hit rate {s.hit_rate:.0%} | rank IC {s.rank_ic:+.3f} | permutation p={s.p_value:.3f}")
+    print(f"realized by implied-upside tercile: low {lo:.1f}% / mid {mid:.1f}% / high {hi:.1f}%")
+    verdict = "no evidence that higher targets earned higher returns" if s.p_value >= 0.05 or s.rank_ic <= 0 else "higher targets did rank higher on returns (check sample size and overlap)"
+    print(f"verdict: {verdict}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="quant-agents")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -64,6 +117,14 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--seed", type=int, default=7)
     b.add_argument("--lookback", type=int, default=20)
     b.set_defaults(fn=_cmd_backtest)
+    e = sub.add_parser("extract", help="turn a folder of broker reports (PDF/txt) into call lines")
+    e.add_argument("folder")
+    e.set_defaults(fn=_cmd_extract)
+    v = sub.add_parser("validate", help="score past calls against later prices (CSV: ticker,date,close)")
+    v.add_argument("calls")
+    v.add_argument("prices")
+    v.add_argument("--horizon", type=int, default=180)
+    v.set_defaults(fn=_cmd_validate)
     args = p.parse_args(argv)
     return args.fn(args)
 
