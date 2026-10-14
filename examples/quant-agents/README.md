@@ -1,6 +1,6 @@
 # quant-agents
 
-Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 60 tests, no network access.
+Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 68 tests, no network access.
 
 ## Why this exists
 
@@ -42,7 +42,7 @@ Key rules, enforced by tests:
 
 ```bash
 pip install -e ".[dev]"
-pytest                                   # 60 tests
+pytest                                   # 68 tests
 quant-agents consensus data/sample_broker_calls.txt --today 2026-10-14
 quant-agents propose   data/sample_broker_calls.txt --today 2026-10-14 --audit audit.jsonl
 quant-agents backtest                    # seeded synthetic prices
@@ -123,6 +123,23 @@ corporate action? GAMMA 2026-05-31: raw -80% vs adjusted -0.2%
 
 Solace Agent Mesh (open source, MCP and A2A support) is one way to host a multi-agent desk around these tools; nothing here depends on it.
 
+## Exchange feeds: what exists (NSE and BSE)
+
+| | NSE | BSE |
+|---|---|---|
+| Official MCP server | Yes: bhavcopy (history) and CM market (near-live), no auth per NSE's page | None found; only third-party MCP projects (unvetted; one carries a "review recommended" security score) |
+| Official history | Bhavcopy, about five years via MCP | Bhavcopy files, now in the standard UDiFF format; some older files were discontinued from 8 Jul 2024 |
+| Official live data | CM market MCP, roughly 1-3 min delayed (third-party write-up) | Licensed "Self Data Feed" (KYC, agreement, fees per third-party guides); real-time/redistribution needs BSE onboarding |
+| Status in this repo | Client and parser built; not run against live servers | Bhavcopy parsing (UDiFF and legacy); no live adapter |
+
+Because both exchanges publish official bhavcopy, `crosscheck` gives a two-source price check straight from the exchanges, joined by ISIN:
+
+```bash
+quant-agents crosscheck nse_csvs/ bse_csvs/    # exit code 1 if any close or return disagrees
+```
+
+It flags closes that differ by more than a tolerance (default 1%), and daily returns that differ by more than 1 percentage point, which catches an exchange that failed to adjust for a split. Rows without an ISIN are reported, never matched by name. Not yet confirmed against real files: that BSE's UDiFF columns match NSE's names, and whether BSE's previous close is corporate-action adjusted (check the UDiFF guidance on bseindia.com before relying on BSE returns).
+
 ## Plug into AI Hedge Fund
 
 `integrations/ai_hedge_fund/india_broker.py` adds an `india_broker` analyst to [virattt/ai-hedge-fund](https://github.com/virattt/ai-hedge-fund) (MIT) through its own `AlphaModel` interface and registry, with no fork needed. It is point-in-time, uses one vote per broker, returns a bounded conviction in [-1, 1], and abstains on thin or implausible data.
@@ -166,6 +183,7 @@ src/quant_agents/
   validation.py   point-in-time evaluation: do targets predict returns?
   nse.py          bhavcopy parser + MCP client for NSE's servers
   scenarios.py    stress, shock, bootstrap, regime and liquidity analysis
+  crosscheck.py   NSE vs BSE agreement check, joined by ISIN
   backtest.py   engine + metrics
   workflow.py   pipeline, approval gate, audit log
   cli.py        command-line entry point
