@@ -11,7 +11,9 @@ from .backtest import equity_to_metrics, momentum_signal, run_backtest, syntheti
 from .consensus import build_consensus
 from .ingest import drop_stale, parse_calls
 from .crosscheck import cross_check
+from .cues import build_briefing, load_cues, render, validate_tone
 from .nse import McpClient, bars_from_csv
+from .papertrade import PaperLedger, report
 from .pdf_extract import extract_call, read_pdf_text
 from .risk import PortfolioState, RiskPolicy
 from .scenarios import build_report
@@ -155,6 +157,56 @@ def _cmd_crosscheck(a: argparse.Namespace) -> int:
     return 0 if r.clean else 1
 
 
+def _ledger(path: str, cash: float | None = None) -> PaperLedger:
+    if Path(path).exists():
+        return PaperLedger.load(path)
+    if cash is None:
+        raise SystemExit(f"{path} does not exist; pass --cash to create it")
+    return PaperLedger(cash)
+
+
+def _cmd_paper_enter(a: argparse.Namespace) -> int:
+    prices = _load_prices(a.prices)
+    L = _ledger(a.ledger, a.cash)
+    t = L.enter(a.ticker.upper(), a.amount, date.fromisoformat(a.day), prices[a.ticker.upper()])
+    L.save(a.ledger)
+    print(f"paper BUY {t.qty} {t.ticker} @ {t.price:.2f} on {t.day} (fees {t.fees:.2f}); cash left {L.cash():.2f}")
+    return 0
+
+
+def _cmd_paper_exit(a: argparse.Namespace) -> int:
+    prices = _load_prices(a.prices)
+    L = _ledger(a.ledger)
+    t = L.exit(a.ticker.upper(), date.fromisoformat(a.day), prices[a.ticker.upper()])
+    L.save(a.ledger)
+    print(f"paper SELL {t.qty} {t.ticker} @ {t.price:.2f} on {t.day} (fees {t.fees:.2f}); cash {L.cash():.2f}")
+    return 0
+
+
+def _cmd_paper_report(a: argparse.Namespace) -> int:
+    r = report(_ledger(a.ledger), _load_prices(a.prices), a.benchmark.upper())
+    print(f"days={r.days} trades={r.n_trades} final value {r.final_value:,.0f}")
+    print(f"portfolio: {r.portfolio.total_return_pct:+.1f}% | maxdd {r.portfolio.max_drawdown_pct:.1f}% | sharpe {r.portfolio.sharpe:.2f}")
+    print(f"benchmark {a.benchmark.upper()}: {r.benchmark.total_return_pct:+.1f}% | maxdd {r.benchmark.max_drawdown_pct:.1f}% | sharpe {r.benchmark.sharpe:.2f}")
+    print(f"excess return after costs: {r.excess_return_pct:+.1f} pts")
+    print(f"verdict: {r.verdict}")
+    return 0
+
+
+def _cmd_briefing(a: argparse.Namespace) -> int:
+    cues, headlines, now = load_cues(a.cues)
+    print(render(build_briefing(cues, now, headlines)))
+    return 0
+
+
+def _cmd_validate_tone(a: argparse.Namespace) -> int:
+    with open(a.history, newline="") as fh:
+        rows = [(float(r["tone"]), float(r["nifty_return"])) for r in csv.DictReader(fh)]
+    v = validate_tone(rows)
+    print(f"days={v.n} direction hit rate {v.direction_hit_rate:.0%} | rank corr {v.rank_corr:+.3f} | permutation p={v.p_value:.3f}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="quant-agents")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -198,6 +250,28 @@ def main(argv: list[str] | None = None) -> int:
     x.add_argument("--close-tol", type=float, default=1.0, help="max close difference, percent")
     x.add_argument("--return-tol", type=float, default=1.0, help="max daily-return difference, percentage points")
     x.set_defaults(fn=_cmd_crosscheck)
+    for name, fn, hlp in (("paper-enter", _cmd_paper_enter, "record a paper buy at the next close after --day"),
+                          ("paper-exit", _cmd_paper_exit, "record a paper sell of the whole position")):
+        q = sub.add_parser(name, help=hlp)
+        q.add_argument("ledger")
+        q.add_argument("--ticker", required=True)
+        q.add_argument("--day", required=True, help="decision day YYYY-MM-DD; fills at the next close")
+        q.add_argument("--prices", required=True, help="CSV ticker,date,close")
+        if name == "paper-enter":
+            q.add_argument("--amount", type=float, required=True)
+            q.add_argument("--cash", type=float, help="starting paper cash, used when creating the ledger")
+        q.set_defaults(fn=fn)
+    pr2 = sub.add_parser("paper-report", help="paper results vs a benchmark, after costs")
+    pr2.add_argument("ledger")
+    pr2.add_argument("--prices", required=True)
+    pr2.add_argument("--benchmark", required=True, help="ticker of an index fund/ETF present in the prices CSV")
+    pr2.set_defaults(fn=_cmd_paper_report)
+    br = sub.add_parser("briefing", help="pre-market global-cues tone from a JSON file")
+    br.add_argument("cues")
+    br.set_defaults(fn=_cmd_briefing)
+    vt = sub.add_parser("validate-tone", help="did the tone predict the Nifty move? CSV: tone,nifty_return")
+    vt.add_argument("history")
+    vt.set_defaults(fn=_cmd_validate_tone)
     args = p.parse_args(argv)
     return args.fn(args)
 

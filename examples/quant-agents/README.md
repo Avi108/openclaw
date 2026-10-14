@@ -1,6 +1,6 @@
 # quant-agents
 
-Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 68 tests, no network access.
+Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 87 tests, no network access.
 
 ## Why this exists
 
@@ -42,7 +42,7 @@ Key rules, enforced by tests:
 
 ```bash
 pip install -e ".[dev]"
-pytest                                   # 68 tests
+pytest                                   # 87 tests
 quant-agents consensus data/sample_broker_calls.txt --today 2026-10-14
 quant-agents propose   data/sample_broker_calls.txt --today 2026-10-14 --audit audit.jsonl
 quant-agents backtest                    # seeded synthetic prices
@@ -123,6 +123,21 @@ corporate action? GAMMA 2026-05-31: raw -80% vs adjusted -0.2%
 
 Solace Agent Mesh (open source, MCP and A2A support) is one way to host a multi-agent desk around these tools; nothing here depends on it.
 
+## Paper trading: prove it before risking money
+
+`paper-enter` / `paper-exit` record would-be trades in an append-only ledger. Fills happen at the first close *after* the decision day (no look-ahead), with slippage and Indian delivery costs (`CostModel`; defaults are approximations, set them from your contract note). `paper-report` compares the result with a benchmark index fund bought on the same day with the same costs, and refuses to give a verdict until there are at least 60 days and 20 trades.
+
+```bash
+quant-agents paper-enter ledger.json --ticker RELIANCE --amount 5000 --day 2026-10-15 --prices prices.csv --cash 100000
+quant-agents paper-report ledger.json --prices prices.csv --benchmark NIFTYBEES
+```
+
+A flat trade loses money after round-trip costs (tested), which is the point: an agent has to beat friction *and* the index.
+
+## Pre-market global cues
+
+`quant-agents briefing cues.json` turns overnight moves in Nikkei, Hang Seng, KOSPI, Straits Times, GIFT Nifty, US futures, USD/INR, Brent, India VIX, US yields and FII flow into a tone score with every contribution shown. Missing or stale inputs are excluded and listed, coverage under 50% refuses a label, and headline keywords (RBI, Fed, tariff...) are flagged for a human, not scored. The weights are judgment, not fitted: `validate-tone` (CSV of `tone,nifty_return`) tests whether the tone predicted the session's move, with a permutation p-value. See `data/sample_cues.json` (synthetic values) for the input format; nothing in this repo fetches the data.
+
 ## Exchange feeds: what exists (NSE and BSE)
 
 | | NSE | BSE |
@@ -184,6 +199,8 @@ src/quant_agents/
   nse.py          bhavcopy parser + MCP client for NSE's servers
   scenarios.py    stress, shock, bootstrap, regime and liquidity analysis
   crosscheck.py   NSE vs BSE agreement check, joined by ISIN
+  papertrade.py   paper ledger and benchmark report after costs
+  cues.py         global-cues tone score and its validation
   backtest.py   engine + metrics
   workflow.py   pipeline, approval gate, audit log
   cli.py        command-line entry point
