@@ -1,6 +1,6 @@
 # quant-agents
 
-Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 30 tests, no network access.
+Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 52 tests, no network access.
 
 ## Why this exists
 
@@ -42,7 +42,7 @@ Key rules, enforced by tests:
 
 ```bash
 pip install -e ".[dev]"
-pytest                                   # 30 tests
+pytest                                   # 52 tests
 quant-agents consensus data/sample_broker_calls.txt --today 2026-10-14
 quant-agents propose   data/sample_broker_calls.txt --today 2026-10-14 --audit audit.jsonl
 quant-agents backtest                    # seeded synthetic prices
@@ -61,6 +61,43 @@ ZETAMOTO         1   100      n/a     0.0  single-broker,no-price
 ```
 
 Only `ALPHAPWR` and `BETAHOME` become proposals, each capped at 5% of a 3,800 portfolio.
+
+## Use it on real broker reports (Indian market)
+
+Download research PDFs from any free source (broker sites, Economic Times, Moneycontrol, exchange filings) into one folder, named `TICKER__BROKER__YYYY-MM-DD.pdf`, then:
+
+```bash
+pip install -e ".[pdf]"
+quant-agents extract reports/ > calls.txt     # refuses ambiguous reports and says why (stderr)
+quant-agents consensus calls.txt              # flags, scores
+quant-agents propose   calls.txt --audit audit.jsonl
+```
+
+The extractor reads only the first pages, understands Indian wording (Accumulate, Add, Reduce, Neutral), and refuses reports with conflicting ratings or multiple targets. An ambiguous price is left unknown, never guessed.
+
+## Do broker targets actually predict returns? (`validate`)
+
+Given past calls and a price CSV (`ticker,date,close`), `quant-agents validate calls.txt prices.csv --horizon 180` enters the day *after* publication, scores only finished windows, and reports hit rate, how much targets overstated realized returns, rank IC, a permutation p-value, and realized return by implied-upside tercile.
+
+Harness self-check on **simulated** worlds (150 stocks, 180-day horizon), which shows the method works and says nothing about real brokers:
+
+| World | mean implied | mean realized | hit rate | rank IC | p-value |
+|---|---|---|---|---|---|
+| targets are noise | 40.9% | 2.7% | 22% | +0.054 | 0.254 (not significant) |
+| planted edge | 40.9% | 28.0% | 43% | +0.431 | 0.000 |
+
+Unit tests also check there is no look-ahead (a price spike on the publication day is ignored) and that the false-positive rate on noise stays near the nominal level.
+
+## Plug into AI Hedge Fund
+
+`integrations/ai_hedge_fund/india_broker.py` adds an `india_broker` analyst to [virattt/ai-hedge-fund](https://github.com/virattt/ai-hedge-fund) (MIT) through its own `AlphaModel` interface and registry, with no fork needed. It is point-in-time, uses one vote per broker, returns a bounded conviction in [-1, 1], and abstains on thin or implausible data.
+
+```bash
+export QUANT_AGENTS_CALLS=calls.txt
+PYTHONPATH=src:integrations/ai_hedge_fund:/path/to/ai-hedge-fund python -c "import india_broker; india_broker.register()"
+```
+
+Tested against the fund's real `AlphaModel` and `Signal` classes (fund checkout at commit `78b779c`).
 
 ## Prior art and what was reused
 
@@ -90,15 +127,18 @@ src/quant_agents/
   consensus.py  aggregation, flags, scoring
   risk.py       policy, sizing, order checks
   quality.py    price cross-check, staleness, source-tag audit
+  pdf_extract.py  conservative broker-report extractor (text/PDF)
+  validation.py   point-in-time evaluation: do targets predict returns?
   backtest.py   engine + metrics
   workflow.py   pipeline, approval gate, audit log
   cli.py        command-line entry point
+integrations/   AI Hedge Fund adapter
 skills/         Claude skill wrapping the workflow
 tests/          unit + workflow tests
 ```
 
 ## Next steps
 
-- Join calls to realized price paths to measure whether consensus score predicts returns (walk-forward, with costs).
+- Run `validate` on a real history of Indian broker calls (hundreds of calls across at least a year, adjusted prices) to learn whether consensus score has any predictive value. Not yet done: this needs data the sandbox cannot download.
 - LLM-backed `Analyst` that summarizes the thesis behind each call, with the veto-only constraint kept.
 - Adapter for a real brokerage API behind the `Broker` interface, with order-status reconciliation.
