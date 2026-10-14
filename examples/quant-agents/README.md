@@ -1,6 +1,6 @@
 # quant-agents
 
-Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 23 tests, no network access.
+Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 30 tests, no network access.
 
 ## Why this exists
 
@@ -42,7 +42,7 @@ Key rules, enforced by tests:
 
 ```bash
 pip install -e ".[dev]"
-pytest                                   # 23 tests
+pytest                                   # 30 tests
 quant-agents consensus data/sample_broker_calls.txt --today 2026-10-14
 quant-agents propose   data/sample_broker_calls.txt --today 2026-10-14 --audit audit.jsonl
 quant-agents backtest                    # seeded synthetic prices
@@ -62,6 +62,18 @@ ZETAMOTO         1   100      n/a     0.0  single-broker,no-price
 
 Only `ALPHAPWR` and `BETAHOME` become proposals, each capped at 5% of a 3,800 portfolio.
 
+## Prior art and what was reused
+
+Surveyed public GitHub projects before extending this one:
+
+| Project | What it is | Used here |
+|---|---|---|
+| [vishalmdi/india-equity-report-skill](https://github.com/vishalmdi/india-equity-report-skill) (MIT, ~25 stars) | Prompt-only skill for NSE/BSE reports | The *discipline*, rewritten as code: two-source price cross-check, staleness limits, and a `[Source: ...]` coverage audit (`quality.py`). No text copied. Its benchmark is a self-run qualitative comparison, so its claims are not independently validated. |
+| [virattt/ai-hedge-fund](https://github.com/virattt/ai-hedge-fund) | Investor-persona agents with a risk and portfolio manager (very widely starred) | Reviewed as a design reference for the analyst/risk/portfolio split only. US-focused; its license and code were not audited here. |
+| [TauricResearch/TradingAgents](https://github.com/TauricResearch/TradingAgents) | Debate-style multi-agent trading framework | Reference only; not audited here. |
+
+`skills/india-equity-check/SKILL.md` packages the workflow as a Claude skill that calls these tools instead of trusting free-text numbers.
+
 ## Limits (read before trusting any number)
 
 - The sample data and the backtest prices are synthetic. The backtest demonstrates a correct engine, not a trading edge, and says so in its output.
@@ -77,9 +89,11 @@ src/quant_agents/
   ingest.py     parser with explicit rejection reasons
   consensus.py  aggregation, flags, scoring
   risk.py       policy, sizing, order checks
+  quality.py    price cross-check, staleness, source-tag audit
   backtest.py   engine + metrics
   workflow.py   pipeline, approval gate, audit log
   cli.py        command-line entry point
+skills/         Claude skill wrapping the workflow
 tests/          unit + workflow tests
 ```
 
