@@ -10,8 +10,10 @@ from pathlib import Path
 from .backtest import equity_to_metrics, momentum_signal, run_backtest, synthetic_prices
 from .consensus import build_consensus
 from .ingest import drop_stale, parse_calls
+from .nse import McpClient, bars_from_csv
 from .pdf_extract import extract_call, read_pdf_text
 from .risk import PortfolioState, RiskPolicy
+from .scenarios import build_report
 from .validation import evaluate, summarize
 from .workflow import run
 
@@ -98,6 +100,40 @@ def _cmd_validate(a: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_nse_tools(a: argparse.Namespace) -> int:
+    """List the tools an MCP server offers (e.g. NSE's bhavcopy server) so schemas are never guessed."""
+    for t in McpClient(a.url).list_tools():
+        print(f"{t['name']}: {t.get('description', '')[:100]}")
+        print(f"    inputSchema: {t.get('inputSchema', {})}")
+    return 0
+
+
+def _cmd_scenarios(a: argparse.Namespace) -> int:
+    weights = {k.upper(): float(v) for k, v in (p.split("=") for p in a.weights.split(","))}
+    if abs(sum(weights.values()) - 1.0) > 1e-6:
+        print(f"weights sum to {sum(weights.values()):g}, expected 1.0", file=sys.stderr)
+        return 2
+    bars = []
+    for f in sorted(Path(a.dir).glob("*.csv")):
+        b, problems = bars_from_csv(f.read_text(errors="ignore"))
+        bars += [x for x in b if x.symbol in weights or a.all_symbols]
+        for pr in problems[:3]:
+            print(f"# {f.name}: {pr}", file=sys.stderr)
+    r = build_report(bars, weights, portfolio_value=a.value, horizon=a.horizon)
+    print(f"days analysed={r.n_days} (dropped {r.dropped_days}) | annualised vol {r.vol_ann_pct:.1f}%")
+    print(f"1-day VaR95 {r.var95_pct:.2f}% | CVaR95 {r.cvar95_pct:.2f}%")
+    for label, ws in (("worst 1-day", r.worst_1d), ("worst 20-day", r.worst_20d)):
+        print(f"{label}: " + "; ".join(f"{s}..{e} {x:.1f}%" for s, e, x in ws))
+    print(f"over {a.horizon} days: P(drawdown > 15% halt) = {r.p_breach:.1%}; 5th-percentile return {r.p5_terminal_pct:.1f}%")
+    print("market-shock P&L: " + ", ".join(f"{k}: {v:+.1f}%" for k, v in r.shocks.items()))
+    print("days to exit at 10% of daily value: " + ", ".join(f"{k} {v:.2f}" for k, v in r.liquidity.items()))
+    for c in r.corporate_actions:
+        print(f"corporate action? {c.symbol} {c.day}: raw {c.raw_change_pct:+.0f}% vs adjusted {c.adjusted_change_pct:+.1f}%")
+    for n in r.notes:
+        print(f"note: {n}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="quant-agents")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -125,6 +161,16 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("prices")
     v.add_argument("--horizon", type=int, default=180)
     v.set_defaults(fn=_cmd_validate)
+    n = sub.add_parser("nse-tools", help="list tools of an MCP server (needs network access to it)")
+    n.add_argument("url", nargs="?", default="https://mcp.nseindia.in/bhavcopy/cm/mcp")
+    n.set_defaults(fn=_cmd_nse_tools)
+    sc = sub.add_parser("scenarios", help="stress-test a portfolio on a folder of bhavcopy CSVs")
+    sc.add_argument("dir")
+    sc.add_argument("--weights", required=True, help="e.g. RELIANCE=0.5,INFY=0.5")
+    sc.add_argument("--value", type=float, default=3800.0)
+    sc.add_argument("--horizon", type=int, default=60)
+    sc.add_argument("--all-symbols", action="store_true")
+    sc.set_defaults(fn=_cmd_scenarios)
     args = p.parse_args(argv)
     return args.fn(args)
 
