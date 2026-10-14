@@ -10,6 +10,7 @@ from pathlib import Path
 from .backtest import equity_to_metrics, momentum_signal, run_backtest, synthetic_prices
 from .consensus import build_consensus
 from .ingest import drop_stale, parse_calls
+from .crosscheck import cross_check
 from .nse import McpClient, bars_from_csv
 from .pdf_extract import extract_call, read_pdf_text
 from .risk import PortfolioState, RiskPolicy
@@ -134,6 +135,26 @@ def _cmd_scenarios(a: argparse.Namespace) -> int:
     return 0
 
 
+def _load_dir(folder: str, exchange: str, series: str | None) -> list:
+    bars = []
+    for f in sorted(Path(folder).glob("*.csv")):
+        b, problems = bars_from_csv(f.read_text(errors="ignore"), series=series, exchange=exchange)
+        bars += b
+        for pr in problems[:3]:
+            print(f"# {f.name}: {pr}", file=sys.stderr)
+    return bars
+
+
+def _cmd_crosscheck(a: argparse.Namespace) -> int:
+    r = cross_check(_load_dir(a.nse_dir, "NSE", "EQ"), _load_dir(a.bse_dir, "BSE", None), a.close_tol, a.return_tol)
+    med = "n/a" if r.median_close_diff_pct is None else f"{r.median_close_diff_pct:.3f}%"
+    print(f"matched={r.matched} unmatched NSE={r.unmatched_nse} BSE={r.unmatched_bse} rows without ISIN={r.no_isin}")
+    print(f"median |NSE-BSE| close difference {med}; mismatches beyond tolerance: {len(r.mismatches)}")
+    for m in r.mismatches[:20]:
+        print(f"  {m.day} {m.isin} {m.nse_symbol}/{m.bse_symbol}: close diff {m.close_diff_pct:.2f}%, return diff {m.return_diff_pp:.2f} pp")
+    return 0 if r.clean else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="quant-agents")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -171,6 +192,12 @@ def main(argv: list[str] | None = None) -> int:
     sc.add_argument("--horizon", type=int, default=60)
     sc.add_argument("--all-symbols", action="store_true")
     sc.set_defaults(fn=_cmd_scenarios)
+    x = sub.add_parser("crosscheck", help="compare NSE and BSE bhavcopy folders (joined by ISIN)")
+    x.add_argument("nse_dir")
+    x.add_argument("bse_dir")
+    x.add_argument("--close-tol", type=float, default=1.0, help="max close difference, percent")
+    x.add_argument("--return-tol", type=float, default=1.0, help="max daily-return difference, percentage points")
+    x.set_defaults(fn=_cmd_crosscheck)
     args = p.parse_args(argv)
     return args.fn(args)
 

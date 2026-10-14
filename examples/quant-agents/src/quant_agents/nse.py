@@ -21,14 +21,15 @@ from typing import Any, Iterable, Mapping
 
 # Legacy bhavcopy and the newer "UDiff" layout use different column names.
 _COLS = {
-    "symbol": ("SYMBOL", "TckrSymb"),
+    "symbol": ("SYMBOL", "TckrSymb", "SC_CODE"),
+    "isin": ("ISIN",),
     "series": ("SERIES", "SctySrs"),
     "open": ("OPEN", "OPEN_PRICE", "OpnPric"),
     "high": ("HIGH", "HIGH_PRICE", "HghPric"),
     "low": ("LOW", "LOW_PRICE", "LwPric"),
     "close": ("CLOSE", "CLOSE_PRICE", "ClsPric"),
     "prev_close": ("PREVCLOSE", "PREV_CLOSE", "PrvsClsgPric"),
-    "volume": ("TOTTRDQTY", "TTL_TRD_QNTY", "TtlTradgVol"),
+    "volume": ("TOTTRDQTY", "TTL_TRD_QNTY", "TtlTradgVol", "NO_OF_SHRS"),
     "date": ("TIMESTAMP", "DATE1", "TradDt"),
 }
 _DATE_FORMATS = ("%Y-%m-%d", "%d-%b-%Y", "%d-%B-%Y", "%d/%m/%Y")
@@ -44,6 +45,8 @@ class Bar:
     close: float
     prev_close: float  # NSE adjusts this for corporate actions on the ex-date
     volume: float
+    isin: str | None = None  # the join key across exchanges (present in UDiFF files)
+    exchange: str = "NSE"
 
 
 def _pick(row: Mapping[str, Any], key: str) -> Any:
@@ -64,26 +67,44 @@ def _parse_date(raw: Any) -> date:
     raise ValueError(f"unrecognized date {raw!r}")
 
 
-def bars_from_records(records: Iterable[Mapping[str, Any]], series: str = "EQ") -> tuple[list[Bar], list[str]]:
-    """Convert bhavcopy-like dict rows into Bars; return (bars, problems). Never guesses missing numbers."""
+def bars_from_records(
+    records: Iterable[Mapping[str, Any]],
+    series: str | None = "EQ",
+    exchange: str = "NSE",
+    default_day: date | None = None,
+) -> tuple[list[Bar], list[str]]:
+    """Convert bhavcopy-like dict rows into Bars; return (bars, problems). Never guesses missing numbers.
+
+    `series=None` accepts every series/group (BSE uses groups such as A and B, not EQ).
+    `default_day` is used only when the file has no date column (legacy BSE files carry the
+    date in the file name).
+    """
     bars: list[Bar] = []
     problems: list[str] = []
     for i, row in enumerate(records):
         sr = _pick(row, "series")
-        if sr is not None and str(sr).strip().upper() != series:
+        if series is not None and sr is not None and str(sr).strip().upper() != series:
             continue
         try:
             nums = {k: float(str(_pick(row, k)).replace(",", "")) for k in ("open", "high", "low", "close", "prev_close", "volume")}
             if min(nums["close"], nums["prev_close"], nums["open"], nums["high"], nums["low"]) <= 0:
                 raise ValueError("non-positive price")
-            bars.append(Bar(str(_pick(row, "symbol")).strip().upper(), _parse_date(_pick(row, "date")), **nums))
+            raw_day = _pick(row, "date")
+            if raw_day is None and default_day is None:
+                raise ValueError("no date column and no default_day")
+            day = default_day if raw_day is None else _parse_date(raw_day)
+            raw_isin = _pick(row, "isin")
+            isin = str(raw_isin).strip().upper() if raw_isin else None
+            bars.append(Bar(str(_pick(row, "symbol")).strip().upper(), day, **nums, isin=isin, exchange=exchange))
         except (TypeError, ValueError) as e:
             problems.append(f"row {i}: {e}")
     return bars, problems
 
 
-def bars_from_csv(text: str, series: str = "EQ") -> tuple[list[Bar], list[str]]:
-    return bars_from_records(csv.DictReader(io.StringIO(text)), series)
+def bars_from_csv(
+    text: str, series: str | None = "EQ", exchange: str = "NSE", default_day: date | None = None
+) -> tuple[list[Bar], list[str]]:
+    return bars_from_records(csv.DictReader(io.StringIO(text)), series, exchange, default_day)
 
 
 # ------------------------------- MCP client -------------------------------
