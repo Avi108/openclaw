@@ -16,14 +16,15 @@ _NUM = r"(\d[\d,]*\.?\d*)"
 _CCY = r"(?:(?:Rs\.?|INR|₹|\$|USD)\s*)"
 _LINE = re.compile(
     r"^(?P<date>\d{4}-\d{2}-\d{2})\s*\|\s*(?P<ticker>[A-Z0-9&.\-]+)\s*\|\s*(?P<broker>[^|]+?)\s*\|\s*"
-    r"(?P<rating>buy|hold|sell|outperform|overweight|reduce|underperform)\s*\|\s*"
+    r"(?P<rating>buy|add|accumulate|hold|neutral|sell|outperform|overweight|reduce|underperform)\s*\|\s*"
     rf"target\s*{_CCY}?(?P<target>{_NUM})\s*(?:\|\s*(?:cmp|price)\s*{_CCY}?(?P<price>{_NUM}))?"
     r"(?:\s*\|\s*(?P<source>\S+))?\s*$",
     re.IGNORECASE,
 )
-_RATING_MAP = {
+RATING_MAP = {
     "buy": Rating.BUY, "outperform": Rating.BUY, "overweight": Rating.BUY,
-    "hold": Rating.HOLD,
+    "add": Rating.BUY, "accumulate": Rating.BUY,  # common Indian-broker wording
+    "hold": Rating.HOLD, "neutral": Rating.HOLD,
     "sell": Rating.SELL, "reduce": Rating.SELL, "underperform": Rating.SELL,
 }
 
@@ -63,7 +64,7 @@ def parse_calls(text: str) -> IngestResult:
             BrokerCall(
                 ticker=m["ticker"].upper(),
                 broker=m["broker"].strip(),
-                rating=_RATING_MAP[m["rating"].lower()],
+                rating=RATING_MAP[m["rating"].lower()],
                 target=target,
                 price=price,
                 published=published,
