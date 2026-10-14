@@ -1,6 +1,6 @@
 # quant-agents
 
-Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 52 tests, no network access.
+Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 60 tests, no network access.
 
 ## Why this exists
 
@@ -42,7 +42,7 @@ Key rules, enforced by tests:
 
 ```bash
 pip install -e ".[dev]"
-pytest                                   # 52 tests
+pytest                                   # 60 tests
 quant-agents consensus data/sample_broker_calls.txt --today 2026-10-14
 quant-agents propose   data/sample_broker_calls.txt --today 2026-10-14 --audit audit.jsonl
 quant-agents backtest                    # seeded synthetic prices
@@ -88,6 +88,41 @@ Harness self-check on **simulated** worlds (150 stocks, 180-day horizon), which 
 
 Unit tests also check there is no look-ahead (a price spike on the publication day is ignored) and that the false-positive rate on noise stays near the nominal level.
 
+## Scenario desk on NSE data (official MCP servers)
+
+NSE publishes official MCP servers ([nseindia.com/nse-mcp](https://www.nseindia.com/nse-mcp)): a **bhavcopy** server (end-of-day history, per NSE about five years) and a **CM market** server (near-live snapshots, roughly 1-3 minutes delayed per third-party write-ups). `quant_agents.nse.McpClient` speaks streamable HTTP to them and the tool schemas are discovered at run time, never hard-coded:
+
+```bash
+quant-agents nse-tools                     # prints the real tool names and input schemas
+quant-agents scenarios bhav_csvs/ --weights RELIANCE=0.4,INFY=0.3,HDFCBANK=0.3 --value 3800
+```
+
+What the scenario engine runs on a portfolio (all from bhavcopy history):
+
+| Scenario | Output |
+|---|---|
+| Historical stress | Worst 1-day and 20-day windows, 1-day VaR95 / CVaR95, annualised vol |
+| Corporate actions | Bhavcopy's previous close is adjusted by NSE, so `close/prev_close` returns stay clean; days where it differs from the prior close are flagged (a 1:5 split shows raw -80% vs adjusted ~0%) |
+| Market shocks | Portfolio P&L for -5/-10/-20% market moves using each stock's beta (market proxy = equal-weight of the loaded universe, not the Nifty) |
+| Bootstrap | Probability of breaching the 15% drawdown halt over N days, and 5th-percentile return (block bootstrap) |
+| Regimes | Strategy metrics split by bull / sideways / bear market regime |
+| Liquidity | Days to exit each position at 10% of average daily traded value |
+
+Demo on **synthetic** bhavcopy files with a planted split and a planted -12% crash:
+
+```
+days analysed=300 | annualised vol 12.7%
+1-day VaR95 1.25% | CVaR95 1.67%
+worst 1-day: 2026-07-20 -4.0%   (the planted crash, at a 30% weight)
+over 60 days: P(drawdown > 15% halt) = 0.7%; 5th-percentile return -7.9%
+market-shock P&L: -5%: -4.9%, -10%: -9.8%, -20%: -19.7%
+corporate action? GAMMA 2026-05-31: raw -80% vs adjusted -0.2%
+```
+
+**Not yet verified against NSE:** the client is tested only against a local fake MCP server (JSON and SSE responses, session id echo). The sandbox this was built in could not reach NSE's hosts, so run `quant-agents nse-tools` first on an open network and confirm the tool names and columns. NSE's page states that MCP data confers no right to train or fine-tune AI models: scenario testing is not model training, but read the terms and do not redistribute the data.
+
+Solace Agent Mesh (open source, MCP and A2A support) is one way to host a multi-agent desk around these tools; nothing here depends on it.
+
 ## Plug into AI Hedge Fund
 
 `integrations/ai_hedge_fund/india_broker.py` adds an `india_broker` analyst to [virattt/ai-hedge-fund](https://github.com/virattt/ai-hedge-fund) (MIT) through its own `AlphaModel` interface and registry, with no fork needed. It is point-in-time, uses one vote per broker, returns a bounded conviction in [-1, 1], and abstains on thin or implausible data.
@@ -129,6 +164,8 @@ src/quant_agents/
   quality.py    price cross-check, staleness, source-tag audit
   pdf_extract.py  conservative broker-report extractor (text/PDF)
   validation.py   point-in-time evaluation: do targets predict returns?
+  nse.py          bhavcopy parser + MCP client for NSE's servers
+  scenarios.py    stress, shock, bootstrap, regime and liquidity analysis
   backtest.py   engine + metrics
   workflow.py   pipeline, approval gate, audit log
   cli.py        command-line entry point
