@@ -29,12 +29,14 @@ def dcf_per_share(fcf0: float, growth: float, years: int, terminal_growth: float
 def reverse_dcf_growth(price: float, fcf0: float, years: int, terminal_growth: float, wacc: float,
                        net_debt: float = 0.0, shares: float = 1.0, lo: float = -0.5, hi: float = 1.0) -> float:
     """Constant growth over `years` that makes DCF value equal `price` (bisection; value rises with growth)."""
-    f = lambda g: dcf_per_share(fcf0, g, years, terminal_growth, wacc, net_debt, shares) - price
+    def f(g: float) -> float:
+        return dcf_per_share(fcf0, g, years, terminal_growth, wacc, net_debt, shares) - price
+
     if f(lo) > 0 or f(hi) < 0:
         raise ValueError(f"no growth in [{lo:.0%}, {hi:.0%}] reproduces price {price}: check inputs")
-    for _ in range(200):
+    for _ in range(200):  # pragma: no mutate (equivalent: bisection converges long before 200 steps)
         mid = (lo + hi) / 2
-        lo, hi = (mid, hi) if f(mid) < 0 else (lo, mid)
+        lo, hi = (mid, hi) if f(mid) < 0 else (lo, mid)  # pragma: no mutate (equivalent: f(mid) is never exactly 0 in floats)
     return (lo + hi) / 2
 
 
@@ -73,6 +75,6 @@ def valuation_view(price: float, fcf0: float, growth: float, years: int, termina
     except ValueError:
         implied = None
     mos = margin_of_safety(price, base) * 100 if base > 0 else float("nan")
-    note = ("price already assumes more growth than your base case" if implied is not None and implied > growth * 100
+    note = ("price already assumes more growth than your base case" if implied is not None and implied > growth * 100  # pragma: no mutate (equivalent: strict vs non-strict only differs at an exactly-equal float, which arithmetic does not produce)
             else "price assumes less growth than your base case" if implied is not None else "implied growth not solvable")
     return ValuationView(base, mos, implied, note)

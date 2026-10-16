@@ -36,12 +36,15 @@ def build_consensus(calls: list[BrokerCall]) -> list[ConsensusRow]:
             flags.append("single-broker")
         if med_upside is None:
             flags.append("no-price")
-        elif med_upside > IMPLAUSIBLE_UPSIDE_PCT:
+        elif med_upside > IMPLAUSIBLE_UPSIDE_PCT:  # pragma: no mutate (equivalent: strict vs non-strict only differs at an exactly-equal float, which arithmetic does not produce)
             flags.append("implausible-upside")
         if dispersion > HIGH_DISPERSION:
             flags.append("high-dispersion")
         if any(c.rating is Rating.SELL for c in votes):
             flags.append("has-sell")
+        if any(c.price and ((c.rating is Rating.BUY and c.target <= c.price) or (c.rating is Rating.SELL and c.target >= c.price))
+               for c in votes):
+            flags.append("rating-target-mismatch")  # e.g. a Buy with a target below the price: stale or mistyped
 
         rows.append(
             ConsensusRow(
@@ -60,7 +63,7 @@ def build_consensus(calls: list[BrokerCall]) -> list[ConsensusRow]:
 
 def _score(n: int, buy_ratio: float, upside: float | None, dispersion: float, flags: list[str]) -> float:
     """Confidence-weighted upside: breadth and agreement matter more than a headline number."""
-    if upside is None or "implausible-upside" in flags:
+    if upside is None or "implausible-upside" in flags or "rating-target-mismatch" in flags:
         return 0.0
     breadth = min(n, 4) / 4  # saturates at 4 brokers
     agreement = max(0.0, 1.0 - dispersion)

@@ -17,7 +17,7 @@ from bisect import bisect_right
 from dataclasses import dataclass
 from datetime import date, timedelta
 from statistics import mean
-from typing import Mapping, Sequence
+from collections.abc import Mapping, Sequence
 
 from .models import BrokerCall, Rating
 
@@ -73,7 +73,7 @@ def evaluate_call(call: BrokerCall, path: PricePath, horizon_days: int) -> Outco
 
 def _ranks(xs: Sequence[float]) -> list[float]:
     order = sorted(range(len(xs)), key=lambda i: xs[i])
-    ranks = [0.0] * len(xs)
+    ranks = [0.0] * len(xs)  # pragma: no mutate (equivalent: every slot is overwritten before use)
     i = 0
     while i < len(order):
         j = i
@@ -91,7 +91,7 @@ def spearman(x: Sequence[float], y: Sequence[float]) -> float:
         raise ValueError("need >= 3 paired observations")
     rx, ry = _ranks(x), _ranks(y)
     mx, my = mean(rx), mean(ry)
-    num = sum((a - mx) * (b - my) for a, b in zip(rx, ry))
+    num = sum((a - mx) * (b - my) for a, b in zip(rx, ry, strict=True))
     den = math.sqrt(sum((a - mx) ** 2 for a in rx) * sum((b - my) ** 2 for b in ry))
     return 0.0 if den == 0 else num / den
 

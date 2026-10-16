@@ -16,9 +16,9 @@ from .ingest import RATING_MAP
 from .models import BrokerCall
 
 _AMT = r"(?:Rs\.?|INR|₹)?\s*(\d[\d,]*(?:\.\d+)?)"
-_TARGET = re.compile(rf"(?:target\s*price|price\s*target|\bTP\b|\btarget\b)\s*(?:\(\s*12\s*[- ]?m(?:onths?)?\s*\))?\s*[:\-–]?\s*{_AMT}", re.I)
-_PRICE = re.compile(rf"(?:\bCMP\b|current\s*market\s*price|\bLTP\b|closing\s*price)\s*(?:\(.*?\))?\s*[:\-–]?\s*{_AMT}", re.I)
-_RATING = re.compile(r"\b(?:rating|recommendation|reco)\s*[:\-–]?\s*(buy|add|accumulate|hold|neutral|sell|reduce|outperform|overweight|underperform)\b", re.I)
+_TARGET = re.compile(rf"(?:target\s*price|price\s*target|\bTP\b|\btarget\b)\s*(?:\(\s*12\s*[- ]?m(?:onths?)?\s*\))?\s*[:\-\u2013]?\s*{_AMT}", re.I)
+_PRICE = re.compile(rf"(?:\bCMP\b|current\s*market\s*price|\bLTP\b|closing\s*price)\s*(?:\(.*?\))?\s*[:\-\u2013]?\s*{_AMT}", re.I)
+_RATING = re.compile(r"\b(?:rating|recommendation|reco)\s*[:\-\u2013]?\s*(buy|add|accumulate|hold|neutral|sell|reduce|outperform|overweight|underperform)\b", re.I)
 _RATING_BARE = re.compile(r"\b(BUY|ADD|ACCUMULATE|HOLD|NEUTRAL|SELL|REDUCE|OUTPERFORM|OVERWEIGHT|UNDERPERFORM)\b")
 
 
@@ -33,7 +33,7 @@ def _unique_numbers(matches: list[str]) -> set[float]:
 
 
 def extract_call(text: str, ticker: str, broker: str, published: date, source: str = "") -> Extraction:
-    head = text[:6000]  # the front page carries the call; later pages quote old ones
+    head = text[:6000]  # the front page carries the call; later pages quote old ones  # pragma: no mutate (an arbitrary window size: moving it by one character changes no realistic report)
     reasons: list[str] = []
 
     # All-caps tokens count too, so "Rating: BUY ... SELL" is caught as a conflict

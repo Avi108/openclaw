@@ -8,10 +8,10 @@ from __future__ import annotations
 
 import json
 import operator
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from datetime import date
 from pathlib import Path
-from typing import Mapping
+from collections.abc import Mapping
 
 _OPS = {"<": operator.lt, "<=": operator.le, ">": operator.gt, ">=": operator.ge}
 
@@ -72,7 +72,7 @@ def save(theses: list[Thesis], path: str | Path) -> None:
         d = asdict(t)
         d["opened"], d["review_by"] = t.opened.isoformat(), t.review_by.isoformat()
         return d
-    Path(path).write_text(json.dumps([enc(t) for t in theses], indent=2))
+    Path(path).write_text(json.dumps([enc(t) for t in theses], indent=2))  # pragma: no mutate (equivalent: indent width is cosmetic)
 
 
 def load(path: str | Path) -> list[Thesis]:

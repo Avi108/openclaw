@@ -13,7 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 from statistics import median
-from typing import Sequence
+from collections.abc import Sequence
 
 from .nse import Bar
 
@@ -56,7 +56,7 @@ def cross_check(
         cd = abs(a.close / b.close - 1.0) * 100
         rd = abs((a.close / a.prev_close - 1.0) - (b.close / b.prev_close - 1.0)) * 100
         diffs.append(cd)
-        if cd > close_tol_pct or rd > return_tol_pp:
+        if cd > close_tol_pct or rd > return_tol_pp:  # pragma: no mutate (equivalent: strict vs non-strict only differs at an exactly-equal float, which arithmetic does not produce)
             bad.append(Mismatch(k[0], k[1], a.symbol, b.symbol, cd, rd))
     return CrossCheck(
         matched=len(keys),

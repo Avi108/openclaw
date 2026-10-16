@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import os
 import sys
 from collections import defaultdict
 from datetime import date
@@ -13,7 +14,7 @@ from .ingest import drop_stale, parse_calls
 from .crosscheck import cross_check
 from .cues import build_briefing, load_cues, render, validate_tone
 from .corporate import unadjusted_jumps
-from .markets import SPECS, load_dir, load_file, verify_columns
+from .markets import SPECS, day_from_filename, load_dir, load_file
 from .nse import McpClient, bars_from_csv
 from .papertrade import PaperLedger, post_mortem, report, round_trips
 from .pdf_extract import extract_call, read_pdf_text
@@ -29,13 +30,33 @@ from .workflow import run
 
 def _cmd_consensus(a: argparse.Namespace) -> int:
     res = parse_calls(Path(a.file).read_text())
-    calls = drop_stale(res.calls, date.fromisoformat(a.today), a.max_age_days)
+    calls = drop_stale(res.calls, _day(a.today, "--today"), a.max_age_days)
     print(f"parsed={len(res.calls)} rejected={len(res.rejected)} fresh={len(calls)}")
     print(f"{'ticker':<10}{'brokers':>8}{'buy%':>6}{'upside%':>9}{'score':>8}  flags")
     for r in build_consensus(calls):
         up = "n/a" if r.median_upside_pct is None else f"{r.median_upside_pct:.0f}"
         print(f"{r.ticker:<10}{r.n_brokers:>8}{r.buy_ratio * 100:>6.0f}{up:>9}{r.score:>8.1f}  {','.join(r.flags)}")
     return 0
+
+
+def _day(text: str, flag: str) -> date:
+    try:
+        return date.fromisoformat(text)
+    except ValueError:
+        raise ValueError(f"{flag}: expected a date like 2026-10-16, got {text!r}") from None
+
+
+def _parse_weights(text: str) -> dict[str, float]:
+    out: dict[str, float] = {}
+    for item in text.split(","):
+        ticker, sep, value = item.partition("=")
+        try:
+            if not sep or not ticker.strip():
+                raise ValueError
+            out[ticker.strip().upper()] = float(value)
+        except ValueError:
+            raise ValueError(f"--weights: bad item {item!r}; use TICKER=fraction, e.g. RELIANCE=0.5,INFY=0.5") from None
+    return out
 
 
 def _print_segmented(a: argparse.Namespace) -> int:
@@ -47,7 +68,8 @@ def _print_segmented(a: argparse.Namespace) -> int:
         uni = with_adv(uni, adv_from_bars(bars))
     state = PortfolioState(cash=a.cash, positions={}, peak_value=a.cash)
     events = tuple(load_events(a.events)) if a.events else ()
-    r = run_segmented(Path(a.file).read_text(), state, RiskPolicy(), uni, date.fromisoformat(a.today), events=events)
+    r = run_segmented(Path(a.file).read_text(), state, RiskPolicy(), uni, _day(a.today, "--today"), events=events,
+                      max_invested_pct=a.max_invested_pct)
     print(f"portfolio {a.cash:,.0f}: proposals={len(r.proposals)} queued={len(r.queued)} research={len(r.research)} (nothing is placed)")
     for title, items in (("PROPOSALS (today)", r.proposals), ("QUEUED (valid; over today's order limit)", r.queued)):
         if items:
@@ -75,7 +97,7 @@ def _cmd_propose(a: argparse.Namespace) -> int:
     if a.universe:
         return _print_segmented(a)
     state = PortfolioState(cash=a.cash, positions={}, peak_value=a.cash)
-    result = run(Path(a.file).read_text(), state, RiskPolicy(), date.fromisoformat(a.today))
+    result = run(Path(a.file).read_text(), state, RiskPolicy(), _day(a.today, "--today"))
     print(f"proposals (nothing is placed; approval gate is deny-by-default): {len(result.proposals)}")
     for p in result.proposals:
         print(f"  {p.ticker:<10} {p.amount:>10.2f}  {p.reason}")
@@ -159,7 +181,7 @@ def _overrides(pairs: list[str] | None) -> dict[str, str]:
 def _cmd_markets_verify(a: argparse.Namespace) -> int:
     """Show how a real HKEX/KRX file maps onto our fields before trusting any loader output."""
     spec = SPECS[a.market]
-    bars, problems, rep = load_file(a.file, spec, default_day=None if not a.day else date.fromisoformat(a.day),
+    bars, problems, rep = load_file(a.file, spec, default_day=_day(a.day, "--day") if a.day else day_from_filename(Path(a.file).name),
                                     overrides=_overrides(a.map))
     print(f"{spec.name}: {len(bars)} rows loaded, {len(problems)} problems; previous close from: {rep.prev_close_source}")
     print("mapped: " + ", ".join(f"{k}<-{v}" for k, v in rep.mapped.items()))
@@ -174,7 +196,7 @@ def _cmd_markets_verify(a: argparse.Namespace) -> int:
 
 
 def _cmd_scenarios(a: argparse.Namespace) -> int:
-    weights = {k.upper(): float(v) for k, v in (p.split("=") for p in a.weights.split(","))}
+    weights = _parse_weights(a.weights)
     if abs(sum(weights.values()) - 1.0) > 1e-6:
         print(f"weights sum to {sum(weights.values()):g}, expected 1.0", file=sys.stderr)
         return 2
@@ -235,7 +257,7 @@ def _ledger(path: str, cash: float | None = None) -> PaperLedger:
 def _cmd_paper_enter(a: argparse.Namespace) -> int:
     prices = _load_prices(a.prices)
     L = _ledger(a.ledger, a.cash)
-    t = L.enter(a.ticker.upper(), a.amount, date.fromisoformat(a.day), prices[a.ticker.upper()])
+    t = L.enter(a.ticker.upper(), a.amount, _day(a.day, "--day"), prices[a.ticker.upper()])
     L.save(a.ledger)
     print(f"paper BUY {t.qty} {t.ticker} @ {t.price:.2f} on {t.day} (fees {t.fees:.2f}); cash left {L.cash():.2f}")
     return 0
@@ -244,7 +266,7 @@ def _cmd_paper_enter(a: argparse.Namespace) -> int:
 def _cmd_paper_exit(a: argparse.Namespace) -> int:
     prices = _load_prices(a.prices)
     L = _ledger(a.ledger)
-    t = L.exit(a.ticker.upper(), date.fromisoformat(a.day), prices[a.ticker.upper()])
+    t = L.exit(a.ticker.upper(), _day(a.day, "--day"), prices[a.ticker.upper()])
     L.save(a.ledger)
     print(f"paper SELL {t.qty} {t.ticker} @ {t.price:.2f} on {t.day} (fees {t.fees:.2f}); cash {L.cash():.2f}")
     return 0
@@ -264,7 +286,9 @@ def _cmd_paper_review(a: argparse.Namespace) -> int:
     trips = round_trips(_ledger(a.ledger))
     pm = post_mortem(trips)
     pf = "n/a (no losses)" if pm.profit_factor is None else f"{pm.profit_factor:.2f}"
-    fmt = lambda v: "n/a" if v is None else f"{v:+.1f}%"
+    def fmt(v: float | None) -> str:
+        return "n/a" if v is None else f"{v:+.1f}%"
+
     print(f"closed trades={pm.n} win rate {pm.win_rate:.0%} | avg win {fmt(pm.avg_win_pct)} | avg loss {fmt(pm.avg_loss_pct)}")
     print(f"expectancy per trade {pm.expectancy_pct:+.2f}% | profit factor {pf}")
     print(f"worst: {pm.worst.ticker} {pm.worst.return_pct:+.1f}% over {pm.worst.days_held} days")
@@ -297,92 +321,104 @@ def _cmd_skillwatch(a: argparse.Namespace) -> int:
     return 0
 
 
-def main(argv: list[str] | None = None) -> int:
+def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="quant-agents")
     sub = p.add_subparsers(dest="cmd", required=True)
     c = sub.add_parser("consensus", help="score broker calls from a file")
-    c.add_argument("file")
-    c.add_argument("--today", default=date.today().isoformat())
-    c.add_argument("--max-age-days", type=int, default=30)
+    c.add_argument("file", help="broker-call file: date | TICKER | broker | rating | target X | cmp Y | source")
+    c.add_argument("--today", default=date.today().isoformat(), help="as-of date YYYY-MM-DD for the freshness filter (default: today)")
+    c.add_argument("--max-age-days", type=int, default=30, help="drop calls older than this many days (default 30)")
     c.set_defaults(fn=_cmd_consensus)
     pr = sub.add_parser("propose", help="build risk-checked order proposals (never places orders)")
-    pr.add_argument("file")
-    pr.add_argument("--cash", type=float, default=3800.0)
-    pr.add_argument("--today", default=date.today().isoformat())
+    pr.add_argument("file", help="broker-call file, same format as for consensus")
+    pr.add_argument("--cash", type=float, default=3800.0, help="portfolio value in rupees used for sizing (default 3800)")
+    pr.add_argument("--today", default=date.today().isoformat(), help="as-of date YYYY-MM-DD (default: today)")
     pr.add_argument("--audit", help="write JSONL audit log here")
     pr.add_argument("--universe", help="CSV of ticker,sector,segment|amfi_rank[,adv_value_cr,promoter_pledge_pct,debt_to_equity]: enables segment and sector rules")
     pr.add_argument("--bhavcopy", help="folder of bhavcopy CSVs used to fill liquidity (with --universe)")
+    pr.add_argument("--max-invested-pct", type=float, help="cap total invested capital at this percent of the portfolio, e.g. the "
+                    "ceiling from posture.exposure_ceiling (with --universe; default: no cap)")
     pr.add_argument("--events", help="CSV date,kind,ticker of results/policy dates; adds an event-risk caveat (with --universe)")
     pr.set_defaults(fn=_cmd_propose)
     b = sub.add_parser("backtest", help="momentum vs buy&hold on seeded synthetic prices")
-    b.add_argument("--days", type=int, default=756)
-    b.add_argument("--seed", type=int, default=7)
-    b.add_argument("--lookback", type=int, default=20)
+    b.add_argument("--days", type=int, default=756, help="length of the synthetic price series in days (default 756)")
+    b.add_argument("--seed", type=int, default=7, help="random seed so runs are repeatable (default 7)")
+    b.add_argument("--lookback", type=int, default=20, help="momentum lookback in days (default 20)")
     b.set_defaults(fn=_cmd_backtest)
     e = sub.add_parser("extract", help="turn a folder of broker reports (PDF/txt) into call lines")
-    e.add_argument("folder")
+    e.add_argument("folder", help="folder of reports named TICKER__BROKER__YYYY-MM-DD.pdf or .txt")
     e.set_defaults(fn=_cmd_extract)
     v = sub.add_parser("validate", help="score past calls against later prices (CSV: ticker,date,close)")
-    v.add_argument("calls")
-    v.add_argument("prices")
-    v.add_argument("--horizon", type=int, default=180)
+    v.add_argument("calls", help="call file with prices, same format as for consensus")
+    v.add_argument("prices", help="price CSV with columns ticker,date,close")
+    v.add_argument("--horizon", type=int, default=180, help="days to hold after each call (default 180)")
     v.set_defaults(fn=_cmd_validate)
     n = sub.add_parser("nse-tools", help="list tools of an MCP server (needs network access to it)")
-    n.add_argument("url", nargs="?", default="https://mcp.nseindia.in/bhavcopy/cm/mcp")
+    n.add_argument("url", nargs="?", default="https://mcp.nseindia.in/bhavcopy/cm/mcp", help="MCP server URL (default: NSE bhavcopy server)")
     n.set_defaults(fn=_cmd_nse_tools)
-    sc = sub.add_parser("scenarios", help="stress-test a portfolio on a folder of bhavcopy CSVs")
-    sc.add_argument("dir")
+    sc = sub.add_parser("scenarios", help="stress-test a portfolio (VaR, shocks, bootstrap, liquidity) on a folder of daily price CSVs")
+    sc.add_argument("dir", help="folder of daily CSV files for the chosen --market")
     sc.add_argument("--weights", required=True, help="e.g. RELIANCE=0.5,INFY=0.5")
-    sc.add_argument("--value", type=float, default=3800.0)
-    sc.add_argument("--horizon", type=int, default=60)
-    sc.add_argument("--all-symbols", action="store_true")
+    sc.add_argument("--value", type=float, default=3800.0, help="portfolio value in the market currency, used for liquidity (default 3800)")
+    sc.add_argument("--horizon", type=int, default=60, help="days for the drawdown simulation (default 60)")
+    sc.add_argument("--all-symbols", action="store_true", help="also load symbols not in --weights (needed for the market proxy and betas)")
     sc.add_argument("--market", choices=["nse", *SPECS], default="nse", help="file layout: nse (default), hkex or krx")
     sc.add_argument("--map", action="append", metavar="FIELD=COLUMN", help="override a column mapping, e.g. close=종가 (repeatable)")
     sc.set_defaults(fn=_cmd_scenarios)
     mv = sub.add_parser("markets-verify", help="check how an HKEX or KRX file maps onto our fields")
-    mv.add_argument("file")
-    mv.add_argument("--market", choices=list(SPECS), required=True)
+    mv.add_argument("file", help="one real HKEX or KRX CSV file")
+    mv.add_argument("--market", choices=list(SPECS), required=True, help="which exchange layout to check against")
     mv.add_argument("--day", help="trade date YYYY-MM-DD when the file has no date column")
-    mv.add_argument("--map", action="append", metavar="FIELD=COLUMN")
+    mv.add_argument("--map", action="append", metavar="FIELD=COLUMN", help="override a column mapping, e.g. close=종가 (repeatable)")
     mv.set_defaults(fn=_cmd_markets_verify)
     x = sub.add_parser("crosscheck", help="compare NSE and BSE bhavcopy folders (joined by ISIN)")
-    x.add_argument("nse_dir")
-    x.add_argument("bse_dir")
+    x.add_argument("nse_dir", help="folder of NSE bhavcopy CSVs")
+    x.add_argument("bse_dir", help="folder of BSE UDiFF bhavcopy CSVs (needs an ISIN column)")
     x.add_argument("--close-tol", type=float, default=1.0, help="max close difference, percent")
     x.add_argument("--return-tol", type=float, default=1.0, help="max daily-return difference, percentage points")
     x.set_defaults(fn=_cmd_crosscheck)
     for name, fn, hlp in (("paper-enter", _cmd_paper_enter, "record a paper buy at the next close after --day"),
                           ("paper-exit", _cmd_paper_exit, "record a paper sell of the whole position")):
         q = sub.add_parser(name, help=hlp)
-        q.add_argument("ledger")
-        q.add_argument("--ticker", required=True)
+        q.add_argument("ledger", help="paper ledger JSON file (created by paper-enter with --cash)")
+        q.add_argument("--ticker", required=True, help="ticker as it appears in the prices CSV")
         q.add_argument("--day", required=True, help="decision day YYYY-MM-DD; fills at the next close")
         q.add_argument("--prices", required=True, help="CSV ticker,date,close")
         if name == "paper-enter":
-            q.add_argument("--amount", type=float, required=True)
+            q.add_argument("--amount", type=float, required=True, help="rupees to invest (whole shares only; leftover stays cash)")
             q.add_argument("--cash", type=float, help="starting paper cash, used when creating the ledger")
         q.set_defaults(fn=fn)
     pr2 = sub.add_parser("paper-report", help="paper results vs a benchmark, after costs")
-    pr2.add_argument("ledger")
-    pr2.add_argument("--prices", required=True)
+    pr2.add_argument("ledger", help="paper ledger JSON file")
+    pr2.add_argument("--prices", required=True, help="price CSV ticker,date,close including the benchmark")
     pr2.add_argument("--benchmark", required=True, help="ticker of an index fund/ETF present in the prices CSV")
     pr2.set_defaults(fn=_cmd_paper_report)
     rv = sub.add_parser("paper-review", help="post-mortem of closed paper trades: win rate, expectancy, worst trade")
-    rv.add_argument("ledger")
+    rv.add_argument("ledger", help="paper ledger JSON file")
     rv.set_defaults(fn=_cmd_paper_review)
     br = sub.add_parser("briefing", help="pre-market global-cues tone from a JSON file")
-    br.add_argument("cues")
+    br.add_argument("cues", help="JSON file of overnight cues (see data/sample_cues.json)")
     br.set_defaults(fn=_cmd_briefing)
     vt = sub.add_parser("validate-tone", help="did the tone predict the Nifty move? CSV: tone,nifty_return")
-    vt.add_argument("history")
+    vt.add_argument("history", help="CSV with columns tone,nifty_return (at least 30 days)")
     vt.set_defaults(fn=_cmd_validate_tone)
     sw = sub.add_parser("skillwatch", help="check reference skill repos for changes and possible gaps vs ours")
-    sw.add_argument("--watchlist", default="data/watchlist.json")
-    sw.add_argument("--state", default="watch/state.json")
-    sw.add_argument("--digest-dir", default="watch")
+    sw.add_argument("--watchlist", default="data/watchlist.json", help="JSON list of repos to watch (default data/watchlist.json)")
+    sw.add_argument("--state", default="watch/state.json", help="where last-seen commits and skills are saved (default watch/state.json)")
+    sw.add_argument("--digest-dir", default="watch", help="folder for the dated digest (default watch)")
     sw.set_defaults(fn=_cmd_skillwatch)
-    args = p.parse_args(argv)
-    return args.fn(args)
+    return p
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+    try:
+        return args.fn(args)
+    except (OSError, ValueError, KeyError, RuntimeError) as e:  # user-facing problems: say what is wrong, exit 2
+        if os.environ.get("QUANT_AGENTS_DEBUG") == "1":
+            raise
+        print(f"error: {e}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

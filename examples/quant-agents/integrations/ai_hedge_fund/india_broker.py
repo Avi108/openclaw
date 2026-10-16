@@ -17,7 +17,7 @@ import math
 import os
 from datetime import date, timedelta
 from pathlib import Path
-from typing import Callable
+from collections.abc import Callable
 
 from hedge_fund.data.protocol import DataClient
 from hedge_fund.models import Signal

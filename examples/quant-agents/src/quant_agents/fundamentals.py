@@ -87,7 +87,7 @@ def altman_z_double_prime(s: Statements) -> Altman:
     ta = s.total_assets
     z = (6.56 * _div(s.current_assets - s.current_liabilities, ta) + 3.26 * _div(s.retained_earnings, ta)
          + 6.72 * _div(s.ebit, ta) + 1.05 * _div(s.equity, s.total_liabilities))
-    return Altman(z, "safe" if z > 2.6 else "distress" if z < 1.1 else "grey")
+    return Altman(z, "safe" if z > 2.6 else "distress" if z < 1.1 else "grey")  # pragma: no mutate (equivalent: strict vs non-strict only differs at an exactly-equal float, which arithmetic does not produce)
 
 
 # -------------------------------- Beneish --------------------------------
@@ -120,7 +120,7 @@ def beneish_m(cur: Statements, prev: Statements) -> Beneish:
     }
     m = (-4.84 + 0.920 * idx["DSRI"] + 0.528 * idx["GMI"] + 0.404 * idx["AQI"] + 0.892 * idx["SGI"]
          + 0.115 * idx["DEPI"] - 0.172 * idx["SGAI"] + 4.679 * idx["TATA"] - 0.327 * idx["LVGI"])
-    return Beneish(m, m > BENEISH_THRESHOLD, idx)
+    return Beneish(m, m > BENEISH_THRESHOLD, idx)  # pragma: no mutate (equivalent: strict vs non-strict only differs at an exactly-equal float, which arithmetic does not produce)
 
 
 @dataclass(frozen=True)

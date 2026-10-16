@@ -9,7 +9,7 @@ import csv
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
-from typing import Sequence
+from collections.abc import Sequence
 
 
 @dataclass(frozen=True)

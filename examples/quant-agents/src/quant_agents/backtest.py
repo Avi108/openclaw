@@ -4,7 +4,7 @@ from __future__ import annotations
 import math
 import random
 from dataclasses import dataclass
-from typing import Callable, Sequence
+from collections.abc import Callable, Sequence
 
 TRADING_DAYS = 252
 
@@ -18,6 +18,19 @@ class Metrics:
     n_days: int
 
 
+def _cagr_pct(ratio: float, n_days: int) -> float:
+    """Annualised growth in percent. Total loss is -100%; an overflow on a very short, very large move is +inf.
+
+    Annualising fewer than a few weeks of data is not meaningful, so read CAGR alongside `n_days`.
+    """
+    if ratio <= 0:
+        return -100.0
+    try:
+        return (ratio ** (TRADING_DAYS / n_days) - 1.0) * 100.0
+    except OverflowError:
+        return math.inf
+
+
 def equity_to_metrics(equity: Sequence[float], rf_annual: float = 0.0) -> Metrics:
     if len(equity) < 2 or equity[0] <= 0:
         raise ValueError("need at least two positive equity points")
@@ -28,13 +41,12 @@ def equity_to_metrics(equity: Sequence[float], rf_annual: float = 0.0) -> Metric
     std = math.sqrt(var)
     rf_daily = rf_annual / TRADING_DAYS
     sharpe = 0.0 if std == 0 else (mean - rf_daily) / std * math.sqrt(TRADING_DAYS)
-    peak, mdd = equity[0], 0.0
+    peak, mdd = equity[0], 0.0  # pragma: no mutate (equivalent: the first loop iteration sets peak to equity[0] anyway)
     for v in equity:
         peak = max(peak, v)
         mdd = max(mdd, 1.0 - v / peak)
     total = equity[-1] / equity[0] - 1.0
-    cagr = (equity[-1] / equity[0]) ** (TRADING_DAYS / n) - 1.0
-    return Metrics(total * 100, cagr * 100, sharpe, mdd * 100, n)
+    return Metrics(total * 100, _cagr_pct(equity[-1] / equity[0], n), sharpe, mdd * 100, n)
 
 
 def run_backtest(

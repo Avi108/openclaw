@@ -12,7 +12,7 @@ from dataclasses import dataclass, replace
 from enum import Enum
 from pathlib import Path
 from statistics import mean
-from typing import Mapping, Sequence
+from collections.abc import Mapping, Sequence
 
 from .nse import Bar
 

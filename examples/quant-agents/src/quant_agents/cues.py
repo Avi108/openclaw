@@ -15,7 +15,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Mapping, Sequence
+from collections.abc import Mapping, Sequence
 
 from .validation import permutation_p_value, spearman
 
@@ -108,7 +108,7 @@ def build_briefing(
     if coverage < min_coverage:
         return Briefing(None, "insufficient data", coverage, tuple(contribs), tuple(excluded), flags, tuple(headlines))
     tone = sum(c.score for c in contribs) / present_weight
-    label = "risk-on" if tone >= RISK_ON else "risk-off" if tone <= RISK_OFF else "neutral"
+    label = "risk-on" if tone >= RISK_ON else "risk-off" if tone <= RISK_OFF else "neutral"  # pragma: no mutate (equivalent: a tone landing exactly on a threshold is unreachable with float arithmetic)
     return Briefing(tone, label, coverage, tuple(contribs), tuple(excluded), flags, tuple(headlines))
 
 

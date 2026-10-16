@@ -14,10 +14,11 @@ import csv
 import io
 import json
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
+from collections.abc import Mapping, Sequence
 
 from .nse import Bar
 
@@ -119,7 +120,7 @@ def parse_day(raw: Any, spec: MarketSpec) -> date:
 
 def resolve_columns(columns: Sequence[str], spec: MarketSpec, overrides: Mapping[str, str] | None = None) -> dict[str, str]:
     """field -> actual column name. Overrides win; otherwise the first alias present (case-insensitive)."""
-    lower = {c.strip().lower(): c for c in columns}
+    lower = {c.strip().lower(): c for c in columns if isinstance(c, str)}
     out: dict[str, str] = {}
     for field_name, names in spec.aliases.items():
         ov = (overrides or {}).get(field_name)
@@ -149,6 +150,7 @@ class ColumnReport:
 
 
 def verify_columns(columns: Sequence[str], spec: MarketSpec, overrides: Mapping[str, str] | None = None) -> ColumnReport:
+    columns = [c for c in columns if isinstance(c, str)]  # csv.DictReader keys surplus fields under None
     m = resolve_columns(columns, spec, overrides)
     used = set(m.values())
     prev = ("exchange-provided previous close" if "prev_close" in m else
@@ -180,7 +182,9 @@ def bars_from_rows(rows: Sequence[Mapping[str, Any]], spec: MarketSpec, default_
     problems: list[str] = []
     parsed: list[dict] = []
     for i, row in enumerate(rows):
-        get = lambda f: row.get(m[f]) if f in m else None
+        def get(f: str, row: Mapping[str, Any] = row) -> Any:
+            return row.get(m[f]) if f in m else None
+
         try:
             sym = normalize_symbol(get("symbol"), spec)
             close = parse_number(get("close"))
@@ -197,9 +201,11 @@ def bars_from_rows(rows: Sequence[Mapping[str, Any]], spec: MarketSpec, default_
             prev, basis = parse_number(get("prev_close")), "exchange"
             if prev is None and (ch := parse_number(get("change"))) is not None:
                 prev, basis = close - ch, "derived_from_change"
-            px = lambda f: (parse_number(get(f)) or close)
-            parsed.append(dict(sym=sym, day=day, open=px("open"), high=px("high"), low=px("low"), close=close,
-                               prev=prev, basis=basis, vol=parse_number(get("volume")) or 0.0))
+            def px(f: str, get=get, close: float = close) -> float:
+                return parse_number(get(f)) or close
+
+            parsed.append({"sym": sym, "day": day, "open": px("open"), "high": px("high"), "low": px("low"),
+                           "close": close, "prev": prev, "basis": basis, "vol": parse_number(get("volume")) or 0.0})
         except ValueError as e:
             problems.append(f"row {i}: {e}")
     parsed.sort(key=lambda r: (r["sym"], r["day"]))

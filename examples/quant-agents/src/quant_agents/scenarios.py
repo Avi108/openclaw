@@ -11,11 +11,12 @@ from __future__ import annotations
 
 import math
 import random
+from itertools import pairwise
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date
 from statistics import mean, pstdev
-from typing import Mapping, Sequence
+from collections.abc import Mapping, Sequence
 
 from .backtest import Metrics, equity_to_metrics
 from .nse import Bar
@@ -47,7 +48,7 @@ def corporate_action_days(bars: Sequence[Bar], threshold: float = 0.2) -> list[C
     """Days where the adjusted previous close differs from the prior session's close (split/bonus/etc.)."""
     flags: list[CorporateActionFlag] = []
     for sym, rows in by_symbol(bars).items():
-        for prev, cur in zip(rows, rows[1:]):
+        for prev, cur in pairwise(rows):
             if abs(cur.prev_close / prev.close - 1.0) > threshold:
                 flags.append(CorporateActionFlag(sym, cur.day, (cur.close / prev.close - 1) * 100, (cur.close / cur.prev_close - 1) * 100))
     return flags
@@ -132,7 +133,7 @@ def beta(asset: Returns, market: Returns) -> float | None:
     a, m = [asset[d] for d in days], [market[d] for d in days]
     ma, mm = mean(a), mean(m)
     var = sum((x - mm) ** 2 for x in m)
-    return None if var == 0 else sum((x - ma) * (y - mm) for x, y in zip(m, a)) / var
+    return None if var == 0 else sum((y - ma) * (x - mm) for x, y in zip(m, a, strict=True)) / var
 
 
 def market_proxy(rets: Mapping[str, Returns]) -> Returns:
@@ -146,7 +147,11 @@ def market_proxy(rets: Mapping[str, Returns]) -> Returns:
 
 def shock_pnl(weights: Mapping[str, float], betas: Mapping[str, float | None], market_move_pct: float) -> dict[str, float]:
     """Per-symbol contribution (% of portfolio) to a market shock, using beta; unknown beta assumed 1.0."""
-    return {s: w * (betas.get(s) if betas.get(s) is not None else 1.0) * market_move_pct for s, w in weights.items()}
+    out = {}
+    for s, w in weights.items():
+        b = betas.get(s)
+        out[s] = w * (1.0 if b is None else b) * market_move_pct
+    return out
 
 
 def regime_metrics(strategy: Returns, market: Returns, lookback: int = 60, band_pct: float = 5.0) -> dict[str, Metrics | None]:
@@ -162,7 +167,7 @@ def regime_metrics(strategy: Returns, market: Returns, lookback: int = 60, band_
         if len(rs) < 10:
             out[reg] = None
             continue
-        eq = [1.0]
+        eq = [1.0]  # pragma: no mutate (equivalent: scaling the starting equity does not change returns or metrics)
         for r in rs:
             eq.append(eq[-1] * (1 + r))
         out[reg] = equity_to_metrics(eq)

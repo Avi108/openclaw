@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date, timedelta
-from typing import Sequence
+from collections.abc import Sequence
 
 from .thesis import Thesis
 
@@ -54,7 +54,6 @@ def circuit_breaker(closed: Sequence[Closed], portfolio_value: float, today: dat
         if (today - last_loss).days < policy.cooldown_days:
             reasons.append(f"losing streak of {streak}: cooling down until {last_loss + timedelta(days=policy.cooldown_days)}")
     for days, limit, label in ((7, policy.weekly_loss_limit_pct, "weekly"), (30, policy.monthly_loss_limit_pct, "monthly")):
-        loss = -sum(c.pnl for c in ordered if 0 <= (today - c.day).days < days and c.pnl < 0)
         net = -sum(c.pnl for c in ordered if 0 <= (today - c.day).days < days)
         if portfolio_value > 0 and max(net, 0.0) / portfolio_value * 100 >= limit:
             reasons.append(f"{label} net loss {max(net, 0.0) / portfolio_value * 100:.1f}% reached limit {limit:g}%")

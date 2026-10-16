@@ -1,12 +1,11 @@
 """Run with the fund on PYTHONPATH: PYTHONPATH=src:integrations/ai_hedge_fund:<fund checkout> pytest integrations"""
-from datetime import date
 
 import pytest
 
 pytest.importorskip("hedge_fund")
 
-from india_broker import IndiaBrokerConsensusModel, register  # noqa: E402
-from quant_agents.ingest import parse_calls  # noqa: E402
+from india_broker import IndiaBrokerConsensusModel, register
+from quant_agents.ingest import parse_calls
 
 CALLS = parse_calls(
     "\n".join(

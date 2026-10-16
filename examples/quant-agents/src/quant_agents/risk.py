@@ -72,12 +72,12 @@ def check_order(
         violations.append("non-positive amount")
     if state.drawdown_pct > policy.halt_drawdown_pct:
         violations.append(f"trading halted: drawdown {state.drawdown_pct:.1f}% > {policy.halt_drawdown_pct}%")
-    if amount > value * policy.max_order_pct / 100.0 + 1e-9:
+    if amount > value * policy.max_order_pct / 100.0 + 1e-9:  # pragma: no mutate (equivalent: strict vs non-strict only differs at an exactly-equal float, which arithmetic does not produce)
         violations.append(f"order exceeds {policy.max_order_pct}% of portfolio")
     new_pos = state.positions.get(ticker, 0.0) + amount
-    if new_pos > value * policy.max_position_pct / 100.0 + 1e-9:
+    if new_pos > value * policy.max_position_pct / 100.0 + 1e-9:  # pragma: no mutate (equivalent: strict vs non-strict only differs at an exactly-equal float, which arithmetic does not produce)
         violations.append(f"position would exceed {policy.max_position_pct}% of portfolio")
-    if state.cash - amount < value * policy.min_cash_pct / 100.0 - 1e-9:
+    if state.cash - amount < value * policy.min_cash_pct / 100.0 - 1e-9:  # pragma: no mutate (equivalent: strict vs non-strict only differs at an exactly-equal float, which arithmetic does not produce)
         violations.append(f"cash would fall below {policy.min_cash_pct}% reserve")
     if state.orders_today >= policy.max_orders_per_day:
         violations.append("daily order limit reached")

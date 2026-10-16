@@ -16,7 +16,7 @@ from bisect import bisect_right
 from dataclasses import asdict, dataclass, field
 from datetime import date
 from pathlib import Path
-from typing import Mapping, Sequence
+from collections.abc import Mapping, Sequence
 
 from .backtest import Metrics, equity_to_metrics
 
@@ -100,7 +100,7 @@ class PaperLedger:
         Path(path).write_text(json.dumps(d, indent=2))
 
     @classmethod
-    def load(cls, path: str | Path) -> "PaperLedger":
+    def load(cls, path: str | Path) -> PaperLedger:
         d = json.loads(Path(path).read_text())
         return cls(d["start_cash"], CostModel(**d["cost"]),
                    [Trade(**{**t, "day": date.fromisoformat(t["day"])}) for t in d["trades"]])
@@ -130,12 +130,16 @@ MIN_DAYS, MIN_TRADES = 60, 20
 
 
 def equity_curve(ledger: PaperLedger, prices: Mapping[str, PricePath], start: date, end: date) -> list[tuple[date, float]]:
+    missing = sorted({t.ticker for t in ledger.trades} - set(prices))
+    if missing:
+        raise ValueError(f"no price history for traded ticker(s) {missing}: the equity curve would silently treat them as worth zero")
     dates = sorted({d for p in prices.values() for d, _ in p if start <= d <= end})
     maps = {t: dict(p) for t, p in prices.items()}
     last: dict[str, float] = {}
     ti = 0
     trades = sorted(ledger.trades, key=lambda t: t.day)
-    cash, pos = ledger.start_cash, {}
+    cash = ledger.start_cash
+    pos: dict[str, int] = {}
     out = []
     for d in dates:
         for t, m in maps.items():  # carry forward last known close (a missing day is not a zero)

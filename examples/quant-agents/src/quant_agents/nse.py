@@ -17,7 +17,8 @@ import json
 import urllib.request
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Iterable, Mapping
+from typing import Any
+from collections.abc import Iterable, Mapping
 
 # Legacy bhavcopy and the newer "UDiff" layout use different column names.
 _COLS = {
@@ -95,12 +96,18 @@ def bars_from_records(
             if min(nums["close"], nums["prev_close"], nums["open"], nums["high"], nums["low"]) <= 0:
                 raise ValueError("non-positive price")
             raw_day = _pick(row, "date")
-            if raw_day is None and default_day is None:
+            if raw_day is not None:
+                day = _parse_date(raw_day)
+            elif default_day is not None:
+                day = default_day
+            else:
                 raise ValueError("no date column and no default_day")
-            day = default_day if raw_day is None else _parse_date(raw_day)
             raw_isin = _pick(row, "isin")
             isin = str(raw_isin).strip().upper() if raw_isin else None
-            bars.append(Bar(str(_pick(row, "symbol")).strip().upper(), day, **nums, isin=isin, exchange=exchange))
+            bars.append(Bar(
+                symbol=str(_pick(row, "symbol")).strip().upper(), day=day,
+                open=nums["open"], high=nums["high"], low=nums["low"], close=nums["close"],
+                prev_close=nums["prev_close"], volume=nums["volume"], isin=isin, exchange=exchange))
         except (TypeError, ValueError) as e:
             problems.append(f"row {i}: {e}")
     return bars, problems
@@ -132,7 +139,7 @@ class McpClient:
         if self._session:
             headers["mcp-session-id"] = self._session
         req = urllib.request.Request(self.url, json.dumps(payload).encode(), headers, method="POST")
-        with urllib.request.urlopen(req, timeout=self.timeout) as resp:  # noqa: S310 - caller-supplied https URL
+        with urllib.request.urlopen(req, timeout=self.timeout) as resp:
             self._session = resp.headers.get("mcp-session-id") or self._session
             body = resp.read().decode()
             ctype = resp.headers.get("content-type", "")

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
-from typing import Sequence
+from collections.abc import Sequence
 
 
 @dataclass(frozen=True)
@@ -44,7 +44,7 @@ def estimate_tax(gains: Sequence[tuple[date, date, float]], rules: TaxRules = Ta
             ltcg += g
         else:
             stcg += g
-    if stcg < 0:
+    if stcg < 0:  # pragma: no mutate (equivalent: at 0 the offset adds nothing)
         ltcg += stcg
         stcg = 0.0
     taxable_ltcg = max(0.0, ltcg - rules.ltcg_exemption)

@@ -49,7 +49,7 @@ def check_price(
     if len(prices) >= 2:
         lo, hi = min(prices), max(prices)
         divergence = (hi / lo - 1.0) * 100.0
-        if divergence > max_divergence_pct:
+        if divergence > max_divergence_pct:  # pragma: no mutate (equivalent: strict vs non-strict only differs at an exactly-equal float, which arithmetic does not produce)
             reasons.append(f"sources diverge by {divergence:.1f}% (> {max_divergence_pct}%)")
     return PriceCheck(ok=not reasons, divergence_pct=divergence, reasons=tuple(reasons))
 

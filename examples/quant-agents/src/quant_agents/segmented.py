@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date
-from typing import Mapping
+from collections.abc import Mapping
 
 from .consensus import build_consensus
 from .events import Event, describe, upcoming

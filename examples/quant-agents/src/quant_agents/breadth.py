@@ -9,7 +9,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date
 from statistics import mean
-from typing import Mapping, Sequence
+from collections.abc import Mapping, Sequence
 
 from .nse import Bar
 from .universe import Instrument
@@ -43,7 +43,7 @@ def breadth(bars: Sequence[Bar], day: date, min_symbols: int = 10) -> Breadth:
     above50: list[bool] = []
     above200: list[bool] = []
     n = 0
-    for sym, rows in _series(bars).items():
+    for rows in _series(bars).values():
         hist = [b for b in rows if b.day <= day]
         if not hist or hist[-1].day != day:
             continue
@@ -60,7 +60,9 @@ def breadth(bars: Sequence[Bar], day: date, min_symbols: int = 10) -> Breadth:
         if len(window) >= 60:
             hi += last.close >= max(window)
             lo += last.close <= min(window)
-    pct = lambda xs: (100.0 * sum(xs) / len(xs)) if len(xs) >= min_symbols else None
+    def pct(xs: list[bool]) -> float | None:
+        return (100.0 * sum(xs) / len(xs)) if len(xs) >= min_symbols else None
+
     return Breadth(day, adv, dec, pct(above50), pct(above200), hi, lo, n)
 
 

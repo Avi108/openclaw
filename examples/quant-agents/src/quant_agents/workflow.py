@@ -13,7 +13,8 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass, field
 from datetime import date
-from typing import Callable, Protocol
+from typing import Protocol
+from collections.abc import Callable
 
 from .consensus import build_consensus
 from .ingest import drop_stale, parse_calls

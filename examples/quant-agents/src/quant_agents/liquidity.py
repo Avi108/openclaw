@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import math
 from statistics import mean
-from typing import Sequence
+from collections.abc import Sequence
 
 from .nse import Bar
 
