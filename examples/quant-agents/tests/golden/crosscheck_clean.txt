@@ -1,0 +1,2 @@
+matched=480 unmatched NSE=0 BSE=0 rows without ISIN=0
+median |NSE-BSE| close difference 0.100%; mismatches beyond tolerance: 0

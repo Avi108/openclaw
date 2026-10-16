@@ -1,0 +1,3 @@
+proposals (nothing is placed; approval gate is deny-by-default): 2
+  ALPHAPWR       190.00  median upside 71%, 3 brokers
+  BETAHOME       190.00  median upside 53%, 2 brokers
