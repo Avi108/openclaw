@@ -47,6 +47,11 @@ class Bar:
     volume: float
     isin: str | None = None  # the join key across exchanges (present in UDiFF files)
     exchange: str = "NSE"
+    currency: str = "INR"
+    # "exchange": prev_close comes from the exchange and is adjusted for corporate actions (NSE);
+    # "derived_from_change": close minus the published change; "raw_previous_close": the prior session's
+    # raw close, which a split turns into a fake crash; "adjusted_by_actions": fixed with supplied actions.
+    prev_close_basis: str = "exchange"
 
 
 def _pick(row: Mapping[str, Any], key: str) -> Any:
