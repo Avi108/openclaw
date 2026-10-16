@@ -17,6 +17,8 @@ from .papertrade import PaperLedger, report
 from .pdf_extract import extract_call, read_pdf_text
 from .risk import PortfolioState, RiskPolicy
 from .scenarios import build_report
+from .segmented import run_segmented
+from .universe import adv_from_bars, load_universe, with_adv
 from .validation import evaluate, summarize
 from .workflow import run
 
@@ -32,7 +34,41 @@ def _cmd_consensus(a: argparse.Namespace) -> int:
     return 0
 
 
+def _print_segmented(a: argparse.Namespace) -> int:
+    uni = load_universe(a.universe)
+    if a.bhavcopy:
+        bars = []
+        for f in sorted(Path(a.bhavcopy).glob("*.csv")):
+            bars += bars_from_csv(f.read_text(errors="ignore"))[0]
+        uni = with_adv(uni, adv_from_bars(bars))
+    state = PortfolioState(cash=a.cash, positions={}, peak_value=a.cash)
+    r = run_segmented(Path(a.file).read_text(), state, RiskPolicy(), uni, date.fromisoformat(a.today))
+    print(f"portfolio {a.cash:,.0f}: proposals={len(r.proposals)} queued={len(r.queued)} research={len(r.research)} (nothing is placed)")
+    for title, items in (("PROPOSALS (today)", r.proposals), ("QUEUED (valid; over today's order limit)", r.queued)):
+        if items:
+            print(f"\n{title}")
+            for seg in ("large", "mid", "small", "micro"):
+                for c in (x for x in items if x.segment.value == seg):
+                    cav = f"  [{'; '.join(c.caveats)}]" if c.caveats else ""
+                    print(f"  {seg:<6} {c.sector:<18} {c.ticker:<14} {c.amount:>9.0f}  upside {c.row.median_upside_pct:.0f}%, {c.row.n_brokers} broker(s){cav}")
+    pend = [x for x in r.research if x.pending_data]
+    fail = [x for x in r.research if not x.pending_data]
+    if pend:
+        print("\nPENDING DATA (blocked only by missing inputs; may qualify once filled)")
+        for x in pend:
+            print(f"  {(x.segment.value if x.segment else '?'):<6} {(x.sector or '?'):<18} {x.ticker:<14} needs: {' | '.join(x.reasons)}")
+    if fail:
+        print("\nDID NOT QUALIFY")
+        for x in fail:
+            print(f"  {(x.segment.value if x.segment else '?'):<6} {(x.sector or '?'):<18} {x.ticker:<14} {' | '.join(x.reasons)}")
+    if a.audit:
+        Path(a.audit).write_text(r.audit.to_jsonl() + "\n")
+    return 0
+
+
 def _cmd_propose(a: argparse.Namespace) -> int:
+    if a.universe:
+        return _print_segmented(a)
     state = PortfolioState(cash=a.cash, positions={}, peak_value=a.cash)
     result = run(Path(a.file).read_text(), state, RiskPolicy(), date.fromisoformat(a.today))
     print(f"proposals (nothing is placed; approval gate is deny-by-default): {len(result.proposals)}")
@@ -220,6 +256,8 @@ def main(argv: list[str] | None = None) -> int:
     pr.add_argument("--cash", type=float, default=3800.0)
     pr.add_argument("--today", default=date.today().isoformat())
     pr.add_argument("--audit", help="write JSONL audit log here")
+    pr.add_argument("--universe", help="CSV of ticker,sector,segment|amfi_rank[,adv_value_cr,promoter_pledge_pct,debt_to_equity]: enables segment and sector rules")
+    pr.add_argument("--bhavcopy", help="folder of bhavcopy CSVs used to fill liquidity (with --universe)")
     pr.set_defaults(fn=_cmd_propose)
     b = sub.add_parser("backtest", help="momentum vs buy&hold on seeded synthetic prices")
     b.add_argument("--days", type=int, default=756)

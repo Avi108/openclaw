@@ -1,6 +1,6 @@
 # quant-agents
 
-Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 87 tests, no network access.
+Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 99 tests, no network access.
 
 ## Why this exists
 
@@ -42,7 +42,7 @@ Key rules, enforced by tests:
 
 ```bash
 pip install -e ".[dev]"
-pytest                                   # 87 tests
+pytest                                   # 99 tests
 quant-agents consensus data/sample_broker_calls.txt --today 2026-10-14
 quant-agents propose   data/sample_broker_calls.txt --today 2026-10-14 --audit audit.jsonl
 quant-agents backtest                    # seeded synthetic prices
@@ -123,6 +123,25 @@ corporate action? GAMMA 2026-05-31: raw -80% vs adjusted -0.2%
 
 Solace Agent Mesh (open source, MCP and A2A support) is one way to host a multi-agent desk around these tools; nothing here depends on it.
 
+## Segment and sector aware screening (large / mid / small / micro)
+
+A plain consensus rule ("at least two agreeing brokers") quietly excludes small and micro caps, which usually have one analyst or none, so every list drifts to large caps. `propose --universe` keeps the safety goal but changes the gate by size:
+
+| Segment | Brokers needed | Max per order | Extra gates |
+|---|---|---|---|
+| Large | 2 | 5% | none |
+| Mid | 2 | 4% | liquidity floor |
+| Small | 1 (flagged "thin coverage") | 2% | liquidity floor, promoter pledge and debt/equity evidence |
+| Micro | 1 (flagged) | 1% | stricter liquidity floor, same evidence |
+
+Small and micro positions share a 10% slice, and no sector may exceed 30% of the portfolio. Candidates that cannot be verified are never proposed: if the only blockers are missing inputs they appear under **PENDING DATA** with the exact fields needed; otherwise under **DID NOT QUALIFY**. Valid names that exceed the daily order limit are **QUEUED**, not dropped.
+
+```bash
+quant-agents propose calls.txt --universe universe.csv --bhavcopy bhav_csvs/ --cash 100000
+```
+
+`universe.csv` columns: `ticker, sector, segment` (or `amfi_rank`), optional `adv_value_cr, promoter_pledge_pct, debt_to_equity`. Liquidity can be filled from bhavcopy. Segments follow AMFI ranks (1-100 large, 101-250 mid, 251+ small; "micro" beyond rank 500 is a common but unofficial label). The thresholds are starting assumptions, not tested optima. Nothing infers a company's size, liquidity or pledge: blank means unknown.
+
 ## Paper trading: prove it before risking money
 
 `paper-enter` / `paper-exit` record would-be trades in an append-only ledger. Fills happen at the first close *after* the decision day (no look-ahead), with slippage and Indian delivery costs (`CostModel`; defaults are approximations, set them from your contract note). `paper-report` compares the result with a benchmark index fund bought on the same day with the same costs, and refuses to give a verdict until there are at least 60 days and 20 trades.
@@ -199,6 +218,8 @@ src/quant_agents/
   nse.py          bhavcopy parser + MCP client for NSE's servers
   scenarios.py    stress, shock, bootstrap, regime and liquidity analysis
   crosscheck.py   NSE vs BSE agreement check, joined by ISIN
+  universe.py     segment, sector, liquidity and evidence metadata
+  segmented.py    size- and sector-aware screening and sizing
   papertrade.py   paper ledger and benchmark report after costs
   cues.py         global-cues tone score and its validation
   backtest.py   engine + metrics
