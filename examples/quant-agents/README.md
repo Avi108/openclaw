@@ -1,6 +1,6 @@
 # quant-agents
 
-Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 99 tests, no network access.
+Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 141 tests, no network access.
 
 ## Why this exists
 
@@ -42,7 +42,7 @@ Key rules, enforced by tests:
 
 ```bash
 pip install -e ".[dev]"
-pytest                                   # 99 tests
+pytest                                   # 141 tests
 quant-agents consensus data/sample_broker_calls.txt --today 2026-10-14
 quant-agents propose   data/sample_broker_calls.txt --today 2026-10-14 --audit audit.jsonl
 quant-agents backtest                    # seeded synthetic prices
@@ -122,6 +122,18 @@ corporate action? GAMMA 2026-05-31: raw -80% vs adjusted -0.2%
 **Not yet verified against NSE:** the client is tested only against a local fake MCP server (JSON and SSE responses, session id echo). The sandbox this was built in could not reach NSE's hosts, so run `quant-agents nse-tools` first on an open network and confirm the tool names and columns. NSE's page states that MCP data confers no right to train or fine-tune AI models: scenario testing is not model training, but read the terms and do not redistribute the data.
 
 Solace Agent Mesh (open source, MCP and A2A support) is one way to host a multi-agent desk around these tools; nothing here depends on it.
+
+## Keeping the skill current
+
+`docs/GAP_ANALYSIS.md` compares this project with 15 public skills and frameworks (global, India, China, emerging
+markets) and records what was adopted, what was deliberately skipped, and what is still open. `quant-agents skillwatch`
+re-checks those repos for new or changed skills and writes a dated digest in `watch/`; it never changes our code.
+
+Also added from that review: fundamental quality scores (`fundamentals.py`: Piotroski, Altman Z'', Beneish M),
+valuation with reverse DCF (`valuation.py`), a thesis tracker (`thesis.py`), a pre-trade discipline gate and loss
+circuit breaker (`discipline.py`), market breadth and sector strength (`breadth.py`), an exposure ceiling
+(`posture.py`), liquidity impact (`liquidity.py`), staged entries (`ladder.py`), an India capital-gains estimator
+(`tax.py`, rates must be confirmed) and event-risk caveats (`events.py`). `paper-review` gives a post-mortem of closed paper trades.
 
 ## Segment and sector aware screening (large / mid / small / micro)
 

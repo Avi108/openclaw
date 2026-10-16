@@ -13,11 +13,13 @@ from .ingest import drop_stale, parse_calls
 from .crosscheck import cross_check
 from .cues import build_briefing, load_cues, render, validate_tone
 from .nse import McpClient, bars_from_csv
-from .papertrade import PaperLedger, report
+from .papertrade import PaperLedger, post_mortem, report, round_trips
 from .pdf_extract import extract_call, read_pdf_text
 from .risk import PortfolioState, RiskPolicy
 from .scenarios import build_report
+from .events import load_events
 from .segmented import run_segmented
+from .skillwatch import check as skillwatch_check, load_watchlist, render_digest
 from .universe import adv_from_bars, load_universe, with_adv
 from .validation import evaluate, summarize
 from .workflow import run
@@ -42,7 +44,8 @@ def _print_segmented(a: argparse.Namespace) -> int:
             bars += bars_from_csv(f.read_text(errors="ignore"))[0]
         uni = with_adv(uni, adv_from_bars(bars))
     state = PortfolioState(cash=a.cash, positions={}, peak_value=a.cash)
-    r = run_segmented(Path(a.file).read_text(), state, RiskPolicy(), uni, date.fromisoformat(a.today))
+    events = tuple(load_events(a.events)) if a.events else ()
+    r = run_segmented(Path(a.file).read_text(), state, RiskPolicy(), uni, date.fromisoformat(a.today), events=events)
     print(f"portfolio {a.cash:,.0f}: proposals={len(r.proposals)} queued={len(r.queued)} research={len(r.research)} (nothing is placed)")
     for title, items in (("PROPOSALS (today)", r.proposals), ("QUEUED (valid; over today's order limit)", r.queued)):
         if items:
@@ -229,6 +232,17 @@ def _cmd_paper_report(a: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_paper_review(a: argparse.Namespace) -> int:
+    trips = round_trips(_ledger(a.ledger))
+    pm = post_mortem(trips)
+    pf = "n/a (no losses)" if pm.profit_factor is None else f"{pm.profit_factor:.2f}"
+    fmt = lambda v: "n/a" if v is None else f"{v:+.1f}%"
+    print(f"closed trades={pm.n} win rate {pm.win_rate:.0%} | avg win {fmt(pm.avg_win_pct)} | avg loss {fmt(pm.avg_loss_pct)}")
+    print(f"expectancy per trade {pm.expectancy_pct:+.2f}% | profit factor {pf}")
+    print(f"worst: {pm.worst.ticker} {pm.worst.return_pct:+.1f}% over {pm.worst.days_held} days")
+    return 0
+
+
 def _cmd_briefing(a: argparse.Namespace) -> int:
     cues, headlines, now = load_cues(a.cues)
     print(render(build_briefing(cues, now, headlines)))
@@ -240,6 +254,18 @@ def _cmd_validate_tone(a: argparse.Namespace) -> int:
         rows = [(float(r["tone"]), float(r["nifty_return"])) for r in csv.DictReader(fh)]
     v = validate_tone(rows)
     print(f"days={v.n} direction hit rate {v.direction_hit_rate:.0%} | rank corr {v.rank_corr:+.3f} | permutation p={v.p_value:.3f}")
+    return 0
+
+
+def _cmd_skillwatch(a: argparse.Namespace) -> int:
+    changes = skillwatch_check(load_watchlist(a.watchlist), a.state)
+    today = date.today().isoformat()
+    text = render_digest(changes, today)
+    print(text)
+    if a.digest_dir:
+        out = Path(a.digest_dir)
+        out.mkdir(parents=True, exist_ok=True)
+        (out / f"digest-{today}.md").write_text(text + "\n")
     return 0
 
 
@@ -258,6 +284,7 @@ def main(argv: list[str] | None = None) -> int:
     pr.add_argument("--audit", help="write JSONL audit log here")
     pr.add_argument("--universe", help="CSV of ticker,sector,segment|amfi_rank[,adv_value_cr,promoter_pledge_pct,debt_to_equity]: enables segment and sector rules")
     pr.add_argument("--bhavcopy", help="folder of bhavcopy CSVs used to fill liquidity (with --universe)")
+    pr.add_argument("--events", help="CSV date,kind,ticker of results/policy dates; adds an event-risk caveat (with --universe)")
     pr.set_defaults(fn=_cmd_propose)
     b = sub.add_parser("backtest", help="momentum vs buy&hold on seeded synthetic prices")
     b.add_argument("--days", type=int, default=756)
@@ -304,12 +331,20 @@ def main(argv: list[str] | None = None) -> int:
     pr2.add_argument("--prices", required=True)
     pr2.add_argument("--benchmark", required=True, help="ticker of an index fund/ETF present in the prices CSV")
     pr2.set_defaults(fn=_cmd_paper_report)
+    rv = sub.add_parser("paper-review", help="post-mortem of closed paper trades: win rate, expectancy, worst trade")
+    rv.add_argument("ledger")
+    rv.set_defaults(fn=_cmd_paper_review)
     br = sub.add_parser("briefing", help="pre-market global-cues tone from a JSON file")
     br.add_argument("cues")
     br.set_defaults(fn=_cmd_briefing)
     vt = sub.add_parser("validate-tone", help="did the tone predict the Nifty move? CSV: tone,nifty_return")
     vt.add_argument("history")
     vt.set_defaults(fn=_cmd_validate_tone)
+    sw = sub.add_parser("skillwatch", help="check reference skill repos for changes and possible gaps vs ours")
+    sw.add_argument("--watchlist", default="data/watchlist.json")
+    sw.add_argument("--state", default="watch/state.json")
+    sw.add_argument("--digest-dir", default="watch")
+    sw.set_defaults(fn=_cmd_skillwatch)
     args = p.parse_args(argv)
     return args.fn(args)
 
