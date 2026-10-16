@@ -3,7 +3,7 @@ from datetime import date
 
 from quant_agents.cli import main
 from quant_agents.risk import PortfolioState, RiskPolicy
-from quant_agents.workflow import RuleAnalyst, run
+from quant_agents.workflow import run
 
 TODAY = date(2026, 10, 14)
 CALLS = """\

@@ -4,9 +4,9 @@ from quant_agents.fundamentals import (Statements, altman_z_double_prime, beneis
 
 
 def stmt(**kw):
-    base = dict(sales=1000, cogs=600, sga=100, depreciation=50, ebit=150, net_income=100, cfo=120, receivables=100,
-                current_assets=400, current_liabilities=200, ppe=500, total_assets=1000, total_liabilities=500,
-                long_term_debt=200, retained_earnings=300, equity=500, shares_outstanding=100)
+    base = {"sales": 1000, "cogs": 600, "sga": 100, "depreciation": 50, "ebit": 150, "net_income": 100, "cfo": 120, "receivables": 100,
+                "current_assets": 400, "current_liabilities": 200, "ppe": 500, "total_assets": 1000, "total_liabilities": 500,
+                "long_term_debt": 200, "retained_earnings": 300, "equity": 500, "shares_outstanding": 100}
     base.update(kw)
     return Statements(**base)
 

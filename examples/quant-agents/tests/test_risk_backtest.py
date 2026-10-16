@@ -10,7 +10,7 @@ POLICY = RiskPolicy()
 
 
 def state(**kw):
-    base = dict(cash=1000.0, positions={"AAA": 500.0, "BBB": 500.0}, peak_value=2000.0)
+    base = {"cash": 1000.0, "positions": {"AAA": 500.0, "BBB": 500.0}, "peak_value": 2000.0}
     base.update(kw)
     return PortfolioState(**base)
 

@@ -156,3 +156,19 @@ def test_universe_csv_reads_quality_columns(tmp_path):
     f.write_text("ticker,sector,segment,piotroski_f,altman_z\nabc,metals,small,6,2.4\nxyz,metals,small,,\n")
     u = load_universe(f)
     assert u["ABC"].piotroski_f == 6 and u["ABC"].altman_z == 2.4 and u["XYZ"].piotroski_f is None
+
+
+def test_cli_max_invested_pct_caps_total_proposals(capsys):
+    from pathlib import Path
+
+    from quant_agents.cli import main
+
+    root = Path(__file__).resolve().parent.parent / "data"
+    args = ["propose", str(root / "sample_broker_calls.txt"), "--universe", str(root / "sample_universe.csv"),
+            "--cash", "100000", "--today", "2026-10-14"]
+    assert main(args + ["--max-invested-pct", "3"]) == 0
+    out = capsys.readouterr().out
+    amounts = [int(line.split()[3]) for line in out.splitlines() if line.startswith("  ") and line.split()[0] in ("large", "mid", "small", "micro")
+               and line.split()[3].isdigit()]
+    assert sum(amounts) <= 3000
+    assert "exposure cap reached" in out

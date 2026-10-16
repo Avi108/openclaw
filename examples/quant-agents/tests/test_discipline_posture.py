@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 import pytest
 
-from quant_agents.discipline import Closed, DisciplinePolicy, Journal, circuit_breaker, pre_trade_gate
+from quant_agents.discipline import Closed, Journal, circuit_breaker, pre_trade_gate
 from quant_agents.ladder import average_cost, entry_ladder
 from quant_agents.liquidity import amihud_per_crore, sqrt_impact_pct
 from quant_agents.nse import Bar
@@ -16,8 +16,8 @@ T = date(2026, 10, 16)
 
 
 def thesis(**kw):
-    base = dict(ticker="A", opened=T, statement="s", entry_price=100, target_price=150, review_by=T + timedelta(days=30),
-                invalidations=(Invalidation("m", "<", 1),), bear_case="b")
+    base = {"ticker": "A", "opened": T, "statement": "s", "entry_price": 100, "target_price": 150, "review_by": T + timedelta(days=30),
+                "invalidations": (Invalidation("m", "<", 1),), "bear_case": "b"}
     base.update(kw)
     return Thesis(**base)
 
@@ -118,9 +118,9 @@ def test_ladder_prices_amounts_and_guards():
     assert lad == [(100.0, 100), (95.0, 105), (90.0, 111)]
     assert average_cost(lad) == pytest.approx((100 * 100 + 95 * 105 + 90 * 111) / 316)
     assert all(q * p <= 10_000 for p, q in lad)  # never rounds a rung up past its share of the money
-    for bad in (dict(total_amount=0), dict(step_pct=40), dict(tranches=0)):
+    for bad in ({"total_amount": 0}, {"step_pct": 40}, {"tranches": 0}):
         with pytest.raises(ValueError):
-            entry_ladder(**{**dict(total_amount=1000, price=100, tranches=3, step_pct=4), **bad})
+            entry_ladder(**{**{"total_amount": 1000, "price": 100, "tranches": 3, "step_pct": 4}, **bad})
 
 
 # ---------------- post-mortem ----------------
@@ -158,3 +158,24 @@ def test_cli_paper_review(tmp_path, capsys):
     assert main(["paper-review", str(f)]) == 0
     out = capsys.readouterr().out
     assert "closed trades=1" in out and "win rate 100%" in out and "profit factor n/a" in out
+
+
+# ---------------- regressions found by property-based testing ----------------
+def test_regression_ladder_refuses_collapsing_rungs_and_respects_tick():
+    # price Rs 1 with a 0.5% step: every rung would round to the same paise. This used to return duplicate limits.
+    with pytest.raises(ValueError, match="rungs collapse"):
+        entry_ladder(100, 1.0, tranches=3, step_pct=0.5)
+    lad = entry_ladder(30_000, 101.37, tranches=3, step_pct=5)
+    assert all(abs(p / 0.05 - round(p / 0.05)) < 1e-9 for p, _ in lad)  # on the Rs 0.05 tick
+    assert [p for p, _ in lad] == sorted({p for p, _ in lad}, reverse=True)
+    with pytest.raises(ValueError):
+        entry_ladder(1000, 100, tick=0)
+
+
+def test_regression_cagr_never_overflows_or_goes_complex():
+    from quant_agents.backtest import equity_to_metrics
+
+    huge = equity_to_metrics([0.5, 1.0, 140.0])      # 280x in two days: used to raise OverflowError
+    assert huge.cagr_pct == math.inf and huge.total_return_pct == pytest.approx(27_900.0)
+    ruin = equity_to_metrics([1.0, 0.5, 0.0])         # a total loss: used to risk a complex number
+    assert ruin.cagr_pct == -100.0 and ruin.max_drawdown_pct == pytest.approx(100.0)

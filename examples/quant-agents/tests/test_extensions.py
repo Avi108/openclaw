@@ -51,9 +51,9 @@ def test_valuation_view_says_what_price_assumes():
 
 # ---------------- thesis ----------------
 def thesis(**kw):
-    base = dict(ticker="ABC", opened=D - timedelta(days=60), statement="margin recovery", entry_price=100, target_price=150,
-                review_by=D + timedelta(days=30), invalidations=(Invalidation("promoter_pledge_pct", ">", 30, "pledge spike"),),
-                bear_case="demand stays weak")
+    base = {"ticker": "ABC", "opened": D - timedelta(days=60), "statement": "margin recovery", "entry_price": 100, "target_price": 150,
+                "review_by": D + timedelta(days=30), "invalidations": (Invalidation("promoter_pledge_pct", ">", 30, "pledge spike"),),
+                "bear_case": "demand stays weak"}
     base.update(kw)
     return Thesis(**base)
 

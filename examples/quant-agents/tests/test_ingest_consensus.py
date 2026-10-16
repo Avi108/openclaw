@@ -66,3 +66,13 @@ def test_flags_and_scoring():
     assert "has-sell" in rows["MIX"].flags and "high-dispersion" in rows["MIX"].flags
     assert rows["GOOD"].score > rows["MIX"].score
     assert build_consensus(calls)[0].ticker == "GOOD"
+
+
+def test_regression_buy_with_target_below_price_is_flagged_not_scored_negative():
+    """Found by property-based testing: a Buy whose target sat below the price produced a negative score."""
+    rows = {r.ticker: r for r in build_consensus(parse_calls(
+        "2026-10-12 | BADBUY | B1 | buy | target 80 | cmp 100\n2026-10-12 | BADBUY | B2 | buy | target 90 | cmp 100\n"
+        "2026-10-12 | BADSELL | B1 | sell | target 120 | cmp 100\n2026-10-12 | OK | B1 | sell | target 70 | cmp 100\n").calls)}
+    assert "rating-target-mismatch" in rows["BADBUY"].flags and rows["BADBUY"].score == 0.0
+    assert "rating-target-mismatch" in rows["BADSELL"].flags and rows["BADSELL"].score == 0.0
+    assert "rating-target-mismatch" not in rows["OK"].flags  # a Sell with a lower target is consistent

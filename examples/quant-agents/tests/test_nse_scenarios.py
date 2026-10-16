@@ -197,3 +197,16 @@ def test_cli_scenarios_on_bhavcopy_folder(tmp_path, capsys):
     out = capsys.readouterr().out
     assert "VaR95" in out and "corporate action? SPL" in out and "market-shock P&L" in out
     assert main(["scenarios", str(tmp_path), "--weights", "AAA=0.5,BBB=0.4"]) == 2
+
+
+def test_regression_beta_uses_each_series_own_mean():
+    """Bug found in proofreading: beta once subtracted the other series' mean, which only worked when both means were 0."""
+    import random
+
+    rng = random.Random(3)
+    days = [D0 + timedelta(days=i) for i in range(200)]
+    market = {d: 0.002 + rng.gauss(0, 0.01) for d in days}          # market drifts +0.2% a day
+    asset = {d: -0.003 + 1.5 * r for d, r in market.items()}        # true beta 1.5, with a large negative intercept
+    assert sc.beta(asset, market) == pytest.approx(1.5, abs=1e-9)
+    shifted = {d: 0.05 + 1.5 * r for d, r in market.items()}        # intercept must never change beta
+    assert sc.beta(shifted, market) == pytest.approx(1.5, abs=1e-9)

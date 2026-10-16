@@ -17,13 +17,13 @@ liuhao1024/open-skills.
 
 | Capability seen elsewhere | Example (skill name) | Status here |
 |---|---|---|
-| Fundamental quality and forensic screens (Piotroski, Altman, Beneish) | InvestSkill `stock-eval`, gauss314 skills | **Added** `fundamentals.py`; wired into small-cap gates via `piotroski_f` / `altman_z` columns |
+| Fundamental quality and forensic screens (Piotroski, Altman, Beneish) | InvestSkill `stock-eval`, gauss314 skills | **Added** `fundamentals.py`; feeds the screening gates (any size segment) through optional `piotroski_f` / `altman_z` universe columns |
 | Valuation: DCF, sensitivity, reverse DCF | InvestSkill `dcf-valuation`, `stock-valuation`; finance-skills `company-valuation` | **Added** `valuation.py` (reverse DCF = what growth the price already assumes) |
 | Thesis tracker with invalidation triggers, pre-mortem | InvestSkill `thesis-tracker`; cc-equity-research | **Added** `thesis.py` (intact / review / broken; bear case required). Not yet: decision log, KPI history |
 | Pre-trade discipline gate (planless, oversized, revenge, regime-blocked) | claude-trading-skills `pre-trade-discipline-gate` | **Added** `discipline.py` with a journal |
 | Loss circuit breaker (losing streaks, weekly/monthly limits) | `drawdown-circuit-breaker` | **Added** (we previously had only a peak-drawdown halt) |
 | Post-trade review of signals | `signal-postmortem`, `trade-performance-coach` | **Added** round-trip post-mortem (`paper-review`). Not yet: per-signal attribution and feedback into weights |
-| Market posture / exposure ceiling | `exposure-coach` | **Added** `posture.py` and `max_invested_pct` in screening (heuristic, unvalidated) |
+| Market posture / exposure ceiling | `exposure-coach` | **Added** `posture.py` and a `--max-invested-pct` cap in `propose --universe`. You pass the ceiling yourself; nothing computes it automatically from live cues or breadth yet (heuristic, unvalidated) |
 | Market breadth and sector strength | `market-breadth-analyzer`, `sector-analyst` | **Added** `breadth.py` from bhavcopy. Not yet: composite 0-100 score |
 | Stress tests: named-crisis replay, correlation spike, risk budget | InvestSkill `risk-stress-test` | **Added** `replay_window`, `correlation_spike_vol`. Not yet: rate/USD/oil sensitivities, risk-budget score |
 | Liquidity: price impact, Amihud | finance-skills `stock-liquidity` | **Added** `liquidity.py` (square-root impact, Amihud) |
@@ -37,7 +37,7 @@ liuhao1024/open-skills.
 Executable data-quality gates (two-source price check, source-tag audit), broker-call ingestion with explicit
 rejection reasons, **point-in-time validation of whether broker targets predicted returns**, a deny-by-default
 approval gate, NSE/BSE official-feed support with ISIN cross-check, segment-aware screening for small and micro caps,
-paper trading judged against a benchmark after costs, and 140+ tests.
+paper trading judged against a benchmark after costs, and a layered automated test suite (see the README's quality gates).
 
 ## Not adopted, on purpose
 

@@ -1,6 +1,6 @@
 # quant-agents
 
-Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 159 tests, no network access.
+Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. No runtime dependencies (standard library only; `pypdf` is optional for reading PDFs). It touches the network only when you run `nse-tools` or `skillwatch`; everything else works on local files.
 
 ## Why this exists
 
@@ -11,6 +11,7 @@ Public broker-call roundups are noisy. Building a research agent on top of them 
 | A target of Rs 377 against a price of Rs 138 (about 170% "upside") looks like a unit or price mismatch | Medians above 120% upside are flagged `implausible-upside` and score 0 |
 | One broker's headline number gets treated as "the market view" | One vote per broker (latest call wins); `single-broker` flag; score weights breadth and agreement |
 | Calls with no price printed | `no-price` flag; never guessed |
+| A Buy whose target is below the current price (or a Sell above it) | `rating-target-mismatch` flag; score 0, because the pair is contradictory and probably stale or mistyped |
 | Mixed Buy/Sell views behind a high average | `has-sell` and `high-dispersion` flags; the analyst step vetoes them |
 | Stale articles recycled as news | Freshness filter before scoring |
 | Agents that can trade by accident | Pipeline only *proposes*; approval gate denies by default |
@@ -42,7 +43,7 @@ Key rules, enforced by tests:
 
 ```bash
 pip install -e ".[dev]"
-pytest                                   # 159 tests
+make check                               # lint, types, tests, smoke, coverage (see Makefile)
 quant-agents consensus data/sample_broker_calls.txt --today 2026-10-14
 quant-agents propose   data/sample_broker_calls.txt --today 2026-10-14 --audit audit.jsonl
 quant-agents backtest                    # seeded synthetic prices
@@ -60,7 +61,7 @@ DELTAFIN         1   100      174     0.0  single-broker,implausible-upside
 ZETAMOTO         1   100      n/a     0.0  single-broker,no-price
 ```
 
-Only `ALPHAPWR` and `BETAHOME` become proposals, each capped at 5% of a 3,800 portfolio.
+Only `ALPHAPWR` and `BETAHOME` become proposals: with the default 3,800 portfolio each is capped at 5%, which is Rs 190.
 
 ## Use it on real broker reports (Indian market)
 
@@ -168,9 +169,9 @@ A plain consensus rule ("at least two agreeing brokers") quietly excludes small 
 | Large | 2 | 5% | none |
 | Mid | 2 | 4% | liquidity floor |
 | Small | 1 (flagged "thin coverage") | 2% | liquidity floor, promoter pledge and debt/equity evidence |
-| Micro | 1 (flagged) | 1% | stricter liquidity floor, same evidence |
+| Micro | 1 (flagged) | 1% | lower absolute liquidity floor (Rs 0.25 crore a day, against Rs 1 crore for small) because positions are capped at 1%; same evidence |
 
-Small and micro positions share a 10% slice, and no sector may exceed 30% of the portfolio. Candidates that cannot be verified are never proposed: if the only blockers are missing inputs they appear under **PENDING DATA** with the exact fields needed; otherwise under **DID NOT QUALIFY**. Valid names that exceed the daily order limit are **QUEUED**, not dropped.
+The liquidity floors are flat rupee amounts, not scaled to your position size, so a large portfolio should set its own. Small and micro positions share a 10% slice, and no sector may exceed 30% of the portfolio. Candidates that cannot be verified are never proposed: if the only blockers are missing inputs they appear under **PENDING DATA** with the exact fields needed; otherwise under **DID NOT QUALIFY**. Valid names that exceed the daily order limit are **QUEUED**, not dropped.
 
 ```bash
 quant-agents propose calls.txt --universe universe.csv --bhavcopy bhav_csvs/ --cash 100000
@@ -223,13 +224,13 @@ Tested against the fund's real `AlphaModel` and `Signal` classes (fund checkout 
 
 ## Prior art and what was reused
 
-Surveyed public GitHub projects before extending this one:
+Surveyed public GitHub projects before extending this one (the full comparison is in `docs/GAP_ANALYSIS.md`):
 
 | Project | What it is | Used here |
 |---|---|---|
-| [vishalmdi/india-equity-report-skill](https://github.com/vishalmdi/india-equity-report-skill) (MIT, ~25 stars) | Prompt-only skill for NSE/BSE reports | The *discipline*, rewritten as code: two-source price cross-check, staleness limits, and a `[Source: ...]` coverage audit (`quality.py`). No text copied. Its benchmark is a self-run qualitative comparison, so its claims are not independently validated. |
-| [virattt/ai-hedge-fund](https://github.com/virattt/ai-hedge-fund) | Investor-persona agents with a risk and portfolio manager (very widely starred) | Reviewed as a design reference for the analyst/risk/portfolio split only. US-focused; its license and code were not audited here. |
-| [TauricResearch/TradingAgents](https://github.com/TauricResearch/TradingAgents) | Debate-style multi-agent trading framework | Reference only; not audited here. |
+| [vishalmdi/india-equity-report-skill](https://github.com/vishalmdi/india-equity-report-skill) (MIT) | Prompt-only skill for NSE/BSE reports | The *discipline*, rewritten as code: two-source price cross-check, staleness limits, and a `[Source: ...]` coverage audit (`quality.py`). No text copied. Its benchmark is a self-run qualitative comparison, so its claims are not independently validated. |
+| [virattt/ai-hedge-fund](https://github.com/virattt/ai-hedge-fund) | Investor-persona agents with a risk and portfolio manager (widely used) | MIT-licensed (LICENSE file read). Used as a design reference for the analyst/risk/portfolio split, and `integrations/` is tested against its `AlphaModel` and `Signal` classes. US-focused; the rest of its code was not audited. |
+| [TauricResearch/TradingAgents](https://github.com/TauricResearch/TradingAgents) | Debate-style multi-agent trading framework | Reference only; its license and code were not audited. |
 
 `skills/india-equity-check/SKILL.md` packages the workflow as a Claude skill that calls these tools instead of trusting free-text numbers.
 
@@ -244,27 +245,75 @@ Surveyed public GitHub projects before extending this one:
 
 ```
 src/quant_agents/
-  models.py     dataclasses (BrokerCall, ConsensusRow)
-  ingest.py     parser with explicit rejection reasons
-  consensus.py  aggregation, flags, scoring
-  risk.py       policy, sizing, order checks
-  quality.py    price cross-check, staleness, source-tag audit
-  pdf_extract.py  conservative broker-report extractor (text/PDF)
-  validation.py   point-in-time evaluation: do targets predict returns?
-  nse.py          bhavcopy parser + MCP client for NSE's servers
-  scenarios.py    stress, shock, bootstrap, regime and liquidity analysis
-  crosscheck.py   NSE vs BSE agreement check, joined by ISIN
-  universe.py     segment, sector, liquidity and evidence metadata
-  segmented.py    size- and sector-aware screening and sizing
-  papertrade.py   paper ledger and benchmark report after costs
-  cues.py         global-cues tone score and its validation
-  backtest.py   engine + metrics
-  workflow.py   pipeline, approval gate, audit log
-  cli.py        command-line entry point
-integrations/   AI Hedge Fund adapter
-skills/         Claude skill wrapping the workflow
-tests/          unit + workflow tests
+  models.py        BrokerCall and ConsensusRow dataclasses
+  ingest.py        broker-call parser with explicit rejection reasons
+  pdf_extract.py   conservative extractor for broker reports (text or PDF)
+  consensus.py     one vote per broker, flags, scoring
+  quality.py       two-source price check, staleness, source-tag audit
+  fundamentals.py  Piotroski, Altman Z'', Beneish M
+  valuation.py     DCF, reverse DCF, Graham number, margin of safety
+  thesis.py        thesis tracker with invalidation conditions
+  risk.py          limits, sizing, stop-based and Kelly sizing
+  discipline.py    pre-trade gate, loss circuit breaker, journal
+  posture.py       exposure ceiling from tone and breadth
+  segmented.py     size- and sector-aware screening and sizing
+  universe.py      segment, sector, liquidity and evidence metadata
+  events.py        event-risk calendar
+  ladder.py        staged entries
+  liquidity.py     price impact and Amihud illiquidity
+  tax.py           India capital-gains estimate (confirm the rates)
+  backtest.py      backtest engine and metrics
+  validation.py    do broker targets predict returns?
+  scenarios.py     stress, shocks, bootstrap, regimes, replay, correlation spike
+  breadth.py       market breadth and sector strength
+  papertrade.py    paper ledger, benchmark report, post-mortem
+  cues.py          global-cues tone score and its validation
+  nse.py           NSE/BSE bhavcopy parser and MCP client
+  crosscheck.py    NSE vs BSE agreement check, joined by ISIN
+  markets.py       spec-driven HKEX and KRX loaders and verifier
+  corporate.py     corporate-action jump detection and ratio-based fixes
+  workflow.py      pipeline, approval gate, audit log
+  skillwatch.py    watches reference skill repos for changes
+  cli.py           command-line entry point
+integrations/      AI Hedge Fund adapter
+skills/            Claude skill wrapping the workflow
+docs/              gap analysis versus other public skills
+data/              synthetic samples and the watchlist
+watch/             skillwatch state and dated digests
+tests/             unit, property, smoke, regression and docs-consistency tests
+Makefile           `make check` runs every gate
 ```
+
+## Command reference
+
+| Command | What it does |
+|---|---|
+| `consensus` | score broker calls from a file |
+| `propose` | risk-checked proposals; add `--universe` for size and sector rules |
+| `extract` | turn a folder of broker reports into call lines |
+| `validate` | did past targets predict later returns? |
+| `backtest` | momentum versus buy-and-hold on seeded synthetic prices |
+| `nse-tools` | list an MCP server's tools (needs network access) |
+| `scenarios` | stress-test a portfolio on daily price files (`--market nse|hkex|krx`) |
+| `markets-verify` | check how a real HKEX or KRX file maps onto our fields |
+| `crosscheck` | compare NSE and BSE bhavcopy folders |
+| `paper-enter`, `paper-exit` | record paper trades (fills at the next close) |
+| `paper-report` | paper results versus a benchmark, after costs |
+| `paper-review` | post-mortem of closed paper trades |
+| `briefing` | pre-market global-cues tone from a JSON file |
+| `validate-tone` | did the tone predict the market's move? |
+| `skillwatch` | check the reference skill repos for changes |
+
+Run `quant-agents <command> --help` for every option, with units and defaults.
+
+## Quality gates
+
+Full description, mutation-testing numbers and known gaps: [docs/TESTING.md](docs/TESTING.md).
+
+`make check` runs, in order: ruff (lint), mypy (types), the full pytest suite, smoke tests that execute every CLI command in a
+subprocess, golden-output regression tests, property-based tests (hypothesis), and a coverage report. `make mutate` runs a
+mutation test over the risk-critical modules: it deliberately breaks the code in small ways and checks that the tests notice.
+The AI Hedge Fund adapter tests run only when a checkout is on `PYTHONPATH` and are skipped otherwise.
 
 ## Next steps
 

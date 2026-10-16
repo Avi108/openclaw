@@ -13,8 +13,8 @@ def mk(**kv):
     return {k: Cue(k, v[0], v[1], NOW - timedelta(hours=1)) for k, v in kv.items()}
 
 
-FULL = dict(gift_nifty=(100, 100), nikkei=(100, 100), hang_seng=(100, 100), kospi=(100, 100), sti=(100, 100),
-            us_futures=(100, 100), usd_inr=(100, 100), brent=(100, 100), india_vix=(100, 100), us10y=(4.0, 4.0))
+FULL = {"gift_nifty": (100, 100), "nikkei": (100, 100), "hang_seng": (100, 100), "kospi": (100, 100), "sti": (100, 100),
+            "us_futures": (100, 100), "usd_inr": (100, 100), "brent": (100, 100), "india_vix": (100, 100), "us10y": (4.0, 4.0)}
 
 
 def test_flat_inputs_give_neutral_with_full_coverage():
