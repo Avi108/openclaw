@@ -7,6 +7,12 @@ description: Sanity-check, screen and size Indian (NSE/BSE) stock ideas before a
 
 Use the `quant-agents` tools; never trust numbers typed from memory. Nothing here places orders.
 
+0. **Always end with a list.** If the user gives no calls file, or `picks` reports `NO PICKS` (exit 3), gather fresh
+   calls yourself: WebSearch/WebFetch broker notes and "stocks to buy" pages from the last 30 days (ET, Mint,
+   Moneycontrol, Business Standard, broker research pages). Write each call you can read exactly, with its real
+   publication date and URL, to a calls file (a hidden or paraphrased number is not a call; skip it). Then run
+   `quant-agents picks <file> --today <date>` and show its SHORTLIST and WATCH. If searching finds nothing dated in
+   the window, say so and give the user the exact input needed; never fill the list from memory or old articles.
 1. **Calls in.** One line each: `date | TICKER | broker | rating | target Rs X | cmp Rs Y | source`. Run
    `quant-agents consensus <file> --today <date>`; for sizing and gates run
    `quant-agents propose <file> --universe <universe.csv> [--events events.csv]`.

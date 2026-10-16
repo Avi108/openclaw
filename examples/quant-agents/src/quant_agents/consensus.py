@@ -69,3 +69,21 @@ def _score(n: int, buy_ratio: float, upside: float | None, dispersion: float, fl
     agreement = max(0.0, 1.0 - dispersion)
     capped_upside = min(upside, 80.0)  # diminishing trust in very large targets
     return round(capped_upside * buy_ratio * (0.5 * breadth + 0.5 * agreement), 2)
+
+
+BLOCKING_FLAGS = frozenset({"implausible-upside", "no-price", "rating-target-mismatch"})
+WATCH_FLAGS = frozenset({"single-broker", "high-dispersion", "has-sell"})
+
+
+def tier_picks(rows: list[ConsensusRow], top: int = 5) -> tuple[list[ConsensusRow], list[ConsensusRow], int]:
+    """Split ranked rows into (shortlist, watch, n_excluded).
+
+    shortlist: 2+ brokers, majority buy, positive upside, no flags. watch: positive upside and a Buy majority but
+    only soft flags (single broker, wide dispersion, a Sell): worth a look, not worth acting on. Anything with a
+    blocking flag (unreadable price, implausible upside, rating contradicting target) is excluded and counted.
+    """
+    usable = [r for r in rows if not BLOCKING_FLAGS & set(r.flags) and r.buy_ratio > 0.5
+              and r.median_upside_pct is not None and r.median_upside_pct > 0]
+    shortlist = [r for r in usable if not r.flags and r.n_brokers >= 2][:top]
+    watch = [r for r in usable if r.flags and set(r.flags) <= WATCH_FLAGS][:top]
+    return shortlist, watch, len(rows) - len(shortlist) - len(watch)

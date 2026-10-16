@@ -9,7 +9,7 @@ from datetime import date
 from pathlib import Path
 
 from .backtest import equity_to_metrics, momentum_signal, run_backtest, synthetic_prices
-from .consensus import build_consensus
+from .consensus import build_consensus, tier_picks
 from .ingest import drop_stale, parse_calls
 from .crosscheck import cross_check
 from .cues import build_briefing, load_cues, render, validate_tone
@@ -108,6 +108,28 @@ def _cmd_propose(a: argparse.Namespace) -> int:
     if a.audit:
         Path(a.audit).write_text(result.audit.to_jsonl() + "\n")
         print(f"audit log: {a.audit}")
+    return 0
+
+
+def _cmd_picks(a: argparse.Namespace) -> int:
+    res = parse_calls(Path(a.file).read_text())
+    calls = drop_stale(res.calls, _day(a.today, "--today"), a.max_age_days)
+    if not calls:
+        print(f"NO PICKS: 0 fresh calls (parsed {len(res.calls)}, older than {a.max_age_days} days or rejected: {len(res.rejected)}).")
+        print("Nothing is invented. Add this week's broker calls: date | TICKER | broker | rating | target X | cmp Y | source")
+        return 3
+    shortlist, watch, excluded = tier_picks(build_consensus(calls), a.top)
+    def show(title: str, rows) -> None:
+        print(title)
+        for r in rows or []:
+            print(f"  {r.ticker:<10} {r.n_brokers} broker(s), {r.buy_ratio:.0%} buy, upside {r.median_upside_pct:.0f}%, score {r.score:.1f}"
+                  + (f"  [{', '.join(r.flags)}]" if r.flags else ""))
+        if not rows:
+            print("  none")
+    show("SHORTLIST (2+ brokers, majority buy, no flags; research next, not an order)", shortlist)
+    show("WATCH (provisional: soft flags, verify before acting)", watch)
+    print(f"excluded: {excluded} (unreadable price, implausible upside, sell-leaning or no positive upside). "
+          "Broker targets are 12-month views that are often wrong; check prices, liquidity and your thesis first.")
     return 0
 
 
@@ -365,6 +387,12 @@ def build_parser() -> argparse.ArgumentParser:
     c.add_argument("--today", default=date.today().isoformat(), help="as-of date YYYY-MM-DD for the freshness filter (default: today)")
     c.add_argument("--max-age-days", type=int, default=30, help="drop calls older than this many days (default 30)")
     c.set_defaults(fn=_cmd_consensus)
+    pk = sub.add_parser("picks", help="shortlist and watch-list of stocks from fresh broker calls (never invents names)")
+    pk.add_argument("file", help="broker-call file, same format as for consensus")
+    pk.add_argument("--today", default=date.today().isoformat(), help="as-of date YYYY-MM-DD for the freshness filter (default: today)")
+    pk.add_argument("--max-age-days", type=int, default=30, help="drop calls older than this many days (default 30)")
+    pk.add_argument("--top", type=int, default=5, help="names per list (default 5)")
+    pk.set_defaults(fn=_cmd_picks)
     pr = sub.add_parser("propose", help="build risk-checked order proposals (never places orders)")
     pr.add_argument("file", help="broker-call file, same format as for consensus")
     pr.add_argument("--cash", type=float, default=3800.0, help="portfolio value in rupees used for sizing (default 3800)")

@@ -303,6 +303,7 @@ Makefile           `make check` runs every gate
 | `paper-review` | post-mortem of closed paper trades |
 | `briefing` | pre-market global-cues tone from a JSON file |
 | `validate-tone` | did the tone predict the market's move? |
+| `picks` | shortlist and watch-list from fresh broker calls; says `NO PICKS` (exit 3) instead of inventing names when none are fresh |
 | `playbook` | how sectors tended to behave in past wars, pandemics, weather and other shocks; `--measure` checks it on your own sector returns |
 | `skillwatch` | check the reference skill repos for changes |
 

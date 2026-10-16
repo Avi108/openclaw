@@ -47,6 +47,7 @@ def smoke_table(world, tmp_path, mcp_url, tone_csv):
     return {
         "consensus": ([DATA / "sample_broker_calls.txt", "--today", "2026-10-14"] and
                       ["consensus", DATA / "sample_broker_calls.txt", "--today", "2026-10-14"], 0, "ALPHAPWR"),
+        "picks": (["picks", DATA / "sample_broker_calls.txt", "--today", "2026-10-14"], 0, "SHORTLIST"),
         "propose": (["propose", DATA / "sample_broker_calls.txt", "--today", "2026-10-14"], 0, "nothing is placed"),
         "backtest": (["backtest", "--days", "200"], 0, "SYNTHETIC"),
         "extract": (["extract", world / "reports"], 0, "| ABC |"),
@@ -74,7 +75,7 @@ def test_every_command_has_a_smoke_scenario(world, tmp_path, mcp_url, tone_csv):
 
 def test_all_commands_run_end_to_end(world, tmp_path, mcp_url, tone_csv):
     # paper-* commands share one ledger and must run in this order
-    order = ["consensus", "propose", "backtest", "extract", "validate", "nse-tools", "scenarios", "markets-verify",
+    order = ["consensus", "picks", "propose", "backtest", "extract", "validate", "nse-tools", "scenarios", "markets-verify",
              "crosscheck", "paper-enter", "paper-report", "paper-exit", "paper-review", "briefing", "validate-tone", "playbook", "skillwatch"]
     table = smoke_table(world, tmp_path, mcp_url, tone_csv)
     failures = []
