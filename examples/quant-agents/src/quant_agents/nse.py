@@ -102,10 +102,13 @@ def bars_from_records(
                 day = default_day
             else:
                 raise ValueError("no date column and no default_day")
+            symbol = str(_pick(row, "symbol") or "").strip().upper()
+            if not symbol:
+                raise ValueError("missing symbol")
             raw_isin = _pick(row, "isin")
             isin = str(raw_isin).strip().upper() if raw_isin else None
             bars.append(Bar(
-                symbol=str(_pick(row, "symbol")).strip().upper(), day=day,
+                symbol=symbol, day=day,
                 open=nums["open"], high=nums["high"], low=nums["low"], close=nums["close"],
                 prev_close=nums["prev_close"], volume=nums["volume"], isin=isin, exchange=exchange))
         except (TypeError, ValueError) as e:

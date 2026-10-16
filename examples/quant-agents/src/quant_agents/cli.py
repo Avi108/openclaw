@@ -97,6 +97,9 @@ def _print_segmented(a: argparse.Namespace) -> int:
 def _cmd_propose(a: argparse.Namespace) -> int:
     if a.universe:
         return _print_segmented(a)
+    ignored = [f for f, v in (("--bhavcopy", a.bhavcopy), ("--events", a.events), ("--max-invested-pct", a.max_invested_pct)) if v is not None]
+    if ignored:
+        raise ValueError(f"{', '.join(ignored)} only work with --universe; refusing to run without the cap or caveat you asked for")
     state = PortfolioState(cash=a.cash, positions={}, peak_value=a.cash)
     result = run(Path(a.file).read_text(), state, RiskPolicy(), _day(a.today, "--today"))
     print(f"proposals (nothing is placed; approval gate is deny-by-default): {len(result.proposals)}")
@@ -138,8 +141,8 @@ def _cmd_extract(a: argparse.Namespace) -> int:
             refused += 1
             continue
         c = ex.call
-        px = f" | cmp {c.price:g}" if c.price else ""
-        print(f"{c.published} | {c.ticker} | {c.broker} | {c.rating.value} | target {c.target:g}{px} | {f.name.replace(' ', '_')}")
+        px = f" | cmp {c.price:.10g}" if c.price else ""
+        print(f"{c.published} | {c.ticker} | {c.broker} | {c.rating.value} | target {c.target:.10g}{px} | {f.name.replace(' ', '_')}")
         ok += 1
     print(f"# extracted={ok} refused={refused}", file=sys.stderr)
     return 0

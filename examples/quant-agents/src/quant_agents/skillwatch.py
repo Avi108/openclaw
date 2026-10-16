@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import subprocess
 import tempfile
@@ -65,7 +66,7 @@ def load_watchlist(path: str | Path) -> list[WatchItem]:
 
 def _git(*args: str, cwd: str | None = None, timeout: int = 180) -> str:
     r = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, timeout=timeout,
-                       env={"GIT_LFS_SKIP_SMUDGE": "1", "GIT_TERMINAL_PROMPT": "0", "PATH": "/usr/bin:/bin:/usr/local/bin"})
+                       env={**os.environ, "GIT_LFS_SKIP_SMUDGE": "1", "GIT_TERMINAL_PROMPT": "0"})
     if r.returncode != 0:
         raise RuntimeError(r.stderr.strip().splitlines()[-1] if r.stderr.strip() else f"git {args[0]} failed")
     return r.stdout
@@ -106,7 +107,8 @@ def skill_manifest(root: Path, root_name: str | None = None) -> dict[str, str]:
 def is_covered(skill_name: str) -> bool:
     tokens = re.split(r"[-_ #]+", skill_name.lower())
     flat = skill_name.lower()
-    return any(k in flat or k in tokens for kws in OUR_CAPABILITIES.values() for k in kws)
+    # short keywords ("nse", "data", "tax") must match a whole word, or "license" and "database" count as covered
+    return any(k in tokens or (len(k) >= 6 and k in flat) for kws in OUR_CAPABILITIES.values() for k in kws)
 
 
 def check(items: list[WatchItem], state_path: str | Path, url_for=lambda repo: f"https://github.com/{repo}",

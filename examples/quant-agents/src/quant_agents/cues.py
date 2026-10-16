@@ -11,6 +11,7 @@ missing or stale input is excluded and listed, never filled in.
 """
 from __future__ import annotations
 
+import re
 import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -37,6 +38,14 @@ SPEC: dict[str, tuple[str, float, int, str, float]] = {
     "fii_net_cr":   ("FII net flow, Rs crore (prior day)", 1.5, +1, "level", 2000.0),
 }
 RISK_ON, RISK_OFF = 0.25, -0.25
+def _aware(raw: str) -> datetime:
+    """Parse an ISO timestamp; one without a UTC offset is rejected rather than guessed (mixing naive and aware times crashes)."""
+    t = datetime.fromisoformat(raw)
+    if t.tzinfo is None:
+        raise ValueError(f"timestamp {raw!r} needs a UTC offset, e.g. 2026-10-16T07:30:00+05:30")
+    return t
+
+
 EVENT_KEYWORDS = ("rbi", "fed", "fomc", "tariff", "war", "election", "budget", "cpi", "gdp", "default", "sanction")
 
 
@@ -104,7 +113,7 @@ def build_briefing(
         present_weight += weight
         contribs.append(Contribution(name, label, ch, score))
     coverage = present_weight / total_weight
-    flags = tuple(sorted({k for h in headlines for k in EVENT_KEYWORDS if k in h.lower()}))
+    flags = tuple(sorted({k for h in headlines for k in EVENT_KEYWORDS if re.search(rf"\b{k}\b", h.lower())}))
     if coverage < min_coverage:
         return Briefing(None, "insufficient data", coverage, tuple(contribs), tuple(excluded), flags, tuple(headlines))
     tone = sum(c.score for c in contribs) / present_weight
@@ -115,10 +124,10 @@ def build_briefing(
 def load_cues(path: str | Path) -> tuple[dict[str, Cue], list[str], datetime]:
     """JSON: {"now": iso, "cues": {name: {"value":..,"prev":..,"as_of": iso}}, "headlines": [..]}"""
     d = json.loads(Path(path).read_text())
-    now = datetime.fromisoformat(d["now"]) if "now" in d else datetime.now(timezone.utc)
+    now = _aware(d["now"]) if "now" in d else datetime.now(timezone.utc)
     cues = {
         k: Cue(k, float(v["value"]), None if v.get("prev") is None else float(v["prev"]),
-               datetime.fromisoformat(v["as_of"]) if v.get("as_of") else None)
+               _aware(v["as_of"]) if v.get("as_of") else None)
         for k, v in d.get("cues", {}).items()
     }
     return cues, list(d.get("headlines", [])), now

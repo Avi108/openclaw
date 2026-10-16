@@ -134,7 +134,11 @@ def run(
             continue
         approved.append(p)
         if broker is not None:
-            order_id = broker.place_limit_buy(p.ticker, p.amount)
+            try:
+                order_id = broker.place_limit_buy(p.ticker, p.amount)
+            except Exception as e:  # earlier orders are already live: record the failure and name them
+                audit.add("order_failed", ticker=p.ticker, error=str(e))
+                raise RuntimeError(f"order for {p.ticker} failed ({e}); already placed: {placed}; audit: {audit.to_jsonl()}") from e
             placed.append((p.ticker, order_id))
             audit.add("order", ticker=p.ticker, amount=p.amount, order_id=order_id)
     return RunResult(proposals, approved, placed, audit)
