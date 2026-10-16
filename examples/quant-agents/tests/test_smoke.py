@@ -62,6 +62,7 @@ def smoke_table(world, tmp_path, mcp_url, tone_csv):
         "paper-review": (["paper-review", ledger], 0, "closed trades=1"),
         "briefing": (["briefing", DATA / "sample_cues.json"], 0, "tone:"),
         "validate-tone": (["validate-tone", tone_csv], 0, "permutation p="),
+        "playbook": (["playbook", "--events", "war", "pandemic", "--sectors", "banks", "it", "defense"], 0, "Not a forecast"),
         "skillwatch": (["skillwatch", "--watchlist", world / "watchlist.json", "--state", tmp_path / "st.json",
                         "--digest-dir", tmp_path / "digests"], 0, "No watched repo changed"),
     }
@@ -74,7 +75,7 @@ def test_every_command_has_a_smoke_scenario(world, tmp_path, mcp_url, tone_csv):
 def test_all_commands_run_end_to_end(world, tmp_path, mcp_url, tone_csv):
     # paper-* commands share one ledger and must run in this order
     order = ["consensus", "propose", "backtest", "extract", "validate", "nse-tools", "scenarios", "markets-verify",
-             "crosscheck", "paper-enter", "paper-report", "paper-exit", "paper-review", "briefing", "validate-tone", "skillwatch"]
+             "crosscheck", "paper-enter", "paper-report", "paper-exit", "paper-review", "briefing", "validate-tone", "playbook", "skillwatch"]
     table = smoke_table(world, tmp_path, mcp_url, tone_csv)
     failures = []
     for name in order:

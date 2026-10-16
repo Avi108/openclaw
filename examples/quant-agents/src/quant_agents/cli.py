@@ -17,6 +17,7 @@ from .corporate import unadjusted_jumps
 from .markets import SPECS, day_from_filename, load_dir, load_file
 from .nse import McpClient, bars_from_csv
 from .papertrade import PaperLedger, post_mortem, report, round_trips
+from .playbook import CATALOG, episodes, judge, known_sectors, measure_episode, winners_and_flops
 from .pdf_extract import extract_call, read_pdf_text
 from .risk import PortfolioState, RiskPolicy
 from .scenarios import build_report
@@ -309,6 +310,38 @@ def _cmd_validate_tone(a: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_playbook(a: argparse.Namespace) -> int:
+    if a.measure:
+        by_id = {e.id: e for e in CATALOG}
+        if a.episode not in by_id:
+            raise ValueError(f"unknown episode {a.episode!r}; run `playbook --list`")
+        series: dict[str, dict[date, float]] = defaultdict(dict)
+        with open(a.measure, newline="") as fh:
+            for r in csv.DictReader(fh):
+                series[r["sector"]][date.fromisoformat(r["date"])] = float(r["return"])
+        m = measure_episode(series, by_id[a.episode], a.after_days)
+        best, worst = winners_and_flops(m)
+        print(f"{by_id[a.episode].name}: measured on your data (returns compounded, %)")
+        for sec in best:
+            v = m[sec]
+            after = "n/a" if v["after_pct"] is None else f"{v['after_pct']:+.1f}%"
+            print(f"  {sec:<24} during {v['during_pct']:+.1f}%  next {a.after_days}d {after}")
+        print(f"winners: {', '.join(best[:3]) or 'none'} | flops: {', '.join(worst[:3]) or 'none'}")
+        print("no data in window: " + (", ".join(sorted(s for s, v in m.items() if v["during_pct"] is None)) or "none"))
+        return 0
+    if a.list or not a.events:
+        for e in episodes(a.events[0] if a.events else None):
+            print(f"{e.id:<22} {e.category:<22} {e.start}..{e.end} {e.region:<7} conf={e.confidence}  {e.name}")
+        print("sectors in catalog: " + ", ".join(known_sectors()))
+        return 0
+    if not a.sectors:
+        raise ValueError("--sectors is required with --events")
+    print("Historical tilt only, from a small hand-recalled catalog (docs/TESTING.md, playbook.py). Not a forecast.")
+    for j in judge(a.sectors, a.events, a.region):
+        print(f"  {j.sector:<24} {j.stance:<26} score {j.score:+.2f} (win {j.wins} / flop {j.flops} / mixed {j.mixed}, n={j.n_episodes}) - {j.caveat}")
+    return 0
+
+
 def _cmd_skillwatch(a: argparse.Namespace) -> int:
     changes = skillwatch_check(load_watchlist(a.watchlist), a.state)
     today = date.today().isoformat()
@@ -402,6 +435,15 @@ def build_parser() -> argparse.ArgumentParser:
     vt = sub.add_parser("validate-tone", help="did the tone predict the Nifty move? CSV: tone,nifty_return")
     vt.add_argument("history", help="CSV with columns tone,nifty_return (at least 30 days)")
     vt.set_defaults(fn=_cmd_validate_tone)
+    pb = sub.add_parser("playbook", help="how sectors tended to behave in past wars, pandemics, weather and other shocks")
+    pb.add_argument("--list", action="store_true", help="list catalog episodes (optionally only the first --events category)")
+    pb.add_argument("--events", nargs="+", metavar="CATEGORY", help="event categories to pool, e.g. war drought_weak_monsoon")
+    pb.add_argument("--sectors", nargs="+", metavar="SECTOR", help="sectors to judge, e.g. banks it fmcg")
+    pb.add_argument("--region", choices=["india", "asia", "global"], help="only episodes from this region plus global ones")
+    pb.add_argument("--measure", metavar="CSV", help="measure real sector behavior from a CSV with columns date,sector,return (daily fractions)")
+    pb.add_argument("--episode", default="covid-2020", help="episode id for --measure (default covid-2020)")
+    pb.add_argument("--after-days", type=int, default=60, help="calendar days after the episode to also measure (default 60)")
+    pb.set_defaults(fn=_cmd_playbook)
     sw = sub.add_parser("skillwatch", help="check reference skill repos for changes and possible gaps vs ours")
     sw.add_argument("--watchlist", default="data/watchlist.json", help="JSON list of repos to watch (default data/watchlist.json)")
     sw.add_argument("--state", default="watch/state.json", help="where last-seen commits and skills are saved (default watch/state.json)")

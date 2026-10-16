@@ -256,6 +256,7 @@ src/quant_agents/
   risk.py          limits, sizing, stop-based and Kelly sizing
   discipline.py    pre-trade gate, loss circuit breaker, journal
   posture.py       exposure ceiling from tone and breadth
+  playbook.py      sector behavior in past wars, pandemics, weather and other shocks
   segmented.py     size- and sector-aware screening and sizing
   universe.py      segment, sector, liquidity and evidence metadata
   events.py        event-risk calendar
@@ -302,9 +303,16 @@ Makefile           `make check` runs every gate
 | `paper-review` | post-mortem of closed paper trades |
 | `briefing` | pre-market global-cues tone from a JSON file |
 | `validate-tone` | did the tone predict the market's move? |
+| `playbook` | how sectors tended to behave in past wars, pandemics, weather and other shocks; `--measure` checks it on your own sector returns |
 | `skillwatch` | check the reference skill repos for changes |
 
 Run `quant-agents <command> --help` for every option, with units and defaults.
+
+## Event playbook
+
+`quant-agents playbook --events war drought_weak_monsoon --sectors banks it fmcg` pools past episodes of those kinds (wars, pandemics, financial crises, policy shocks, elections, trade wars, oil shocks, weak monsoons, heat and cold, floods and cyclones, earthquakes) and says whether each sector tended to hold up, tended to be hit, or was inconsistent, with the win/flop/mixed counts and a caveat when the sample is thin or the episodes disagree. `playbook --measure sector_returns.csv --episode covid-2020` replaces recollection with measurement: it compounds your own daily sector returns over the episode and the 60 days after, and lists winners and flops.
+
+Honest limits: the catalog (`src/quant_agents/playbook.py`, 32 episodes) holds public dates but **sector effects recalled qualitatively, with no price data behind them**, and confidence is marked per episode. Each category has few episodes, each with a different backdrop (rates, valuations, policy), so a "tilt" is a hypothesis to check with `--measure`, not a forecast. Unknown sectors return "no precedent". Nothing here places or sizes an order.
 
 ## Quality gates
 
