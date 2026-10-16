@@ -184,3 +184,59 @@ def report(ledger: PaperLedger, prices: Mapping[str, PricePath], benchmark: str,
     else:
         verdict = "behind or level with the benchmark after costs: a plain index holding did as well or better"
     return PaperReport(pm.n_days, len(ledger.trades), pm, bm, excess, curve[-1][1], verdict)
+
+
+# ------------------------------- post-mortem -------------------------------
+
+@dataclass(frozen=True)
+class RoundTrip:
+    ticker: str
+    entry_day: date
+    exit_day: date
+    return_pct: float  # net of fees and slippage
+    net_pnl: float
+    days_held: int
+
+
+def round_trips(ledger: PaperLedger) -> list[RoundTrip]:
+    """Pair each full exit with the buys that opened the position (average cost). Open positions are excluded."""
+    out: list[RoundTrip] = []
+    open_buys: dict[str, list[Trade]] = {}
+    for t in sorted(ledger.trades, key=lambda t: t.day):
+        if t.side == "buy":
+            open_buys.setdefault(t.ticker, []).append(t)
+            continue
+        buys = open_buys.pop(t.ticker, [])
+        if not buys:
+            continue
+        cost = sum(b.price * b.qty + b.fees for b in buys)
+        proceeds = t.price * t.qty - t.fees
+        out.append(RoundTrip(t.ticker, buys[0].day, t.day, (proceeds / cost - 1) * 100, proceeds - cost, (t.day - buys[0].day).days))
+    return out
+
+
+@dataclass(frozen=True)
+class PostMortem:
+    n: int
+    win_rate: float
+    avg_win_pct: float | None
+    avg_loss_pct: float | None
+    expectancy_pct: float
+    profit_factor: float | None  # gross profit / gross loss; None when there were no losses
+    worst: RoundTrip
+
+
+def post_mortem(trips: Sequence[RoundTrip]) -> PostMortem:
+    if not trips:
+        raise ValueError("no closed round trips to review")
+    wins = [t for t in trips if t.return_pct > 0]
+    losses = [t for t in trips if t.return_pct <= 0]
+    gp = sum(t.net_pnl for t in wins)
+    gl = -sum(t.net_pnl for t in losses)
+    return PostMortem(
+        n=len(trips), win_rate=len(wins) / len(trips),
+        avg_win_pct=(sum(t.return_pct for t in wins) / len(wins)) if wins else None,
+        avg_loss_pct=(sum(t.return_pct for t in losses) / len(losses)) if losses else None,
+        expectancy_pct=sum(t.return_pct for t in trips) / len(trips),
+        profit_factor=(gp / gl) if gl > 0 else None, worst=min(trips, key=lambda t: t.return_pct),
+    )

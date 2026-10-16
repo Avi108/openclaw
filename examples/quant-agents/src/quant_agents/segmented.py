@@ -13,6 +13,7 @@ from datetime import date
 from typing import Mapping
 
 from .consensus import build_consensus
+from .events import Event, describe, upcoming
 from .ingest import drop_stale, parse_calls
 from .models import ConsensusRow
 from .risk import PortfolioState, RiskPolicy, check_order, size_position
@@ -46,6 +47,9 @@ class Limits:
     max_pledge_pct: float = 20.0
     max_debt_to_equity: float = 1.5      # waived for financial sectors
     min_buy_ratio: float = 0.66
+    min_piotroski: int = 4               # applied only when a score is supplied
+    min_altman_z: float = 1.1            # distress threshold; skipped for financials
+    event_window_days: int = 3
 
 
 @dataclass(frozen=True)
@@ -115,6 +119,10 @@ def screen(row: ConsensusRow, inst: Instrument | None, rules: Mapping[Segment, S
         if (inst.debt_to_equity is not None and inst.debt_to_equity > lim.max_debt_to_equity
                 and inst.sector not in FINANCIAL_SECTORS):
             reasons.append(f"debt/equity {inst.debt_to_equity:g} > {lim.max_debt_to_equity:g}")
+    if inst.piotroski_f is not None and inst.piotroski_f < lim.min_piotroski:
+        reasons.append(f"weak Piotroski F-Score {inst.piotroski_f}/9 (< {lim.min_piotroski})")
+    if inst.altman_z is not None and inst.altman_z < lim.min_altman_z and inst.sector not in FINANCIAL_SECTORS:
+        reasons.append(f"Altman Z'' {inst.altman_z:.2f} in distress zone (< {lim.min_altman_z:g})")
     return reasons, caveats
 
 
@@ -128,6 +136,8 @@ def run_segmented(
     limits: Limits = Limits(),
     max_age_days: int = 30,
     min_upside_pct: float = 20.0,
+    events: tuple[Event, ...] = (),
+    max_invested_pct: float | None = None,
 ) -> SegmentedResult:
     res = SegmentedResult()
     ing = parse_calls(raw_calls)
@@ -159,12 +169,18 @@ def run_segmented(
                      value * limits.sector_cap_pct / 100.0 - sector_total(inst.sector))
         if inst.segment in (Segment.SMALL, Segment.MICRO):
             amount = min(amount, value * limits.small_micro_slice_pct / 100.0 - slice_total())
+        if max_invested_pct is not None:
+            invested = sum(sim.positions.values())
+            amount = min(amount, value * max_invested_pct / 100.0 - invested)
         if amount <= 0:
-            why = "sector or small/micro slice cap reached"
+            why = "sector, small/micro slice or market-posture exposure cap reached"
             res.research.append(Rejected(row.ticker, inst.segment, inst.sector, (why,), row))
             continue
         violations = check_order(row.ticker, amount, sim, policy, today)
         hard = [v for v in violations if v not in SOFT_LIMITS]
+        soon = upcoming(row.ticker, today, events, limits.event_window_days)
+        if soon:
+            caveats.append("event risk: " + describe(soon, today))
         cand = Candidate(row.ticker, inst.segment, inst.sector, round(amount, 2), row, tuple(caveats))
         if hard:
             res.research.append(Rejected(row.ticker, inst.segment, inst.sector, tuple(hard), row))

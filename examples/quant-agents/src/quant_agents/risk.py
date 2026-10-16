@@ -84,3 +84,25 @@ def check_order(
     if state.orders_this_week >= policy.max_orders_per_week:
         violations.append("weekly order limit reached")
     return violations
+
+
+def risk_based_qty(portfolio_value: float, risk_pct: float, entry: float, stop: float) -> int:
+    """Whole shares so that being stopped out loses `risk_pct` of the portfolio (e.g. 1.0 = 1%).
+
+    Position size follows the stop distance, not a hunch: a wide stop means a smaller position.
+    """
+    if not (0 < stop < entry):
+        raise ValueError("need 0 < stop < entry for a long position")
+    return int(portfolio_value * risk_pct / 100.0 // (entry - stop))
+
+
+def kelly_fraction(win_prob: float, win_loss_ratio: float, fraction: float = 0.25, cap: float = 0.10) -> float:
+    """Fractional Kelly bet size, capped. Returns 0 when the edge is not positive.
+
+    Kelly f* = p - (1-p)/b. Estimating p and b from a small sample overstates them, so the default is a
+    quarter of Kelly with a hard cap; use it as an upper bound only.
+    """
+    if not (0 < win_prob < 1) or win_loss_ratio <= 0:
+        raise ValueError("need 0 < win_prob < 1 and win_loss_ratio > 0")
+    f = win_prob - (1 - win_prob) / win_loss_ratio
+    return max(0.0, min(cap, f * fraction))

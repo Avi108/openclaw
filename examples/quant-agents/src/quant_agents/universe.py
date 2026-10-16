@@ -32,6 +32,8 @@ class Instrument:
     adv_value_cr: float | None = None        # average daily traded value, Rs crore
     promoter_pledge_pct: float | None = None  # % of promoter holding pledged
     debt_to_equity: float | None = None
+    piotroski_f: int | None = None            # 0-9, from quant_agents.fundamentals
+    altman_z: float | None = None             # Altman Z'' (not valid for financials)
 
 
 def segment_from_rank(rank: int) -> Segment:
@@ -46,7 +48,7 @@ def _opt(row: Mapping[str, str], key: str) -> float | None:
 
 
 def load_universe(path: str | Path) -> dict[str, Instrument]:
-    """CSV columns: ticker, sector, and either segment or amfi_rank; optional adv_value_cr, promoter_pledge_pct, debt_to_equity."""
+    """CSV columns: ticker, sector, and either segment or amfi_rank; optional adv_value_cr, promoter_pledge_pct, debt_to_equity, piotroski_f, altman_z."""
     out: dict[str, Instrument] = {}
     with open(path, newline="") as fh:
         for row in csv.DictReader(r for r in fh if not r.lstrip().startswith("#")):
@@ -58,8 +60,10 @@ def load_universe(path: str | Path) -> dict[str, Instrument]:
             else:
                 raise ValueError(f"{row.get('ticker')}: need segment or amfi_rank")
             t = row["ticker"].strip().upper()
+            f = _opt(row, "piotroski_f")
             out[t] = Instrument(t, seg, row["sector"].strip().lower(), _opt(row, "adv_value_cr"),
-                                _opt(row, "promoter_pledge_pct"), _opt(row, "debt_to_equity"))
+                                _opt(row, "promoter_pledge_pct"), _opt(row, "debt_to_equity"),
+                                None if f is None else int(f), _opt(row, "altman_z"))
     return out
 
 

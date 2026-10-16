@@ -229,3 +229,26 @@ def build_report(
         worst_1d=worst_windows(series, 1), worst_20d=worst_windows(series, 20),
         p_breach=p_breach, p5_terminal_pct=p5, shocks=shock_out, liquidity=liq, notes=notes,
     )
+
+
+def replay_window(series: Returns, start: date, end: date) -> tuple[float, int]:
+    """Compounded portfolio return (%) over [start, end] and the number of sessions found.
+
+    Replays a named stress period (for example a past crash) on today's weights. Needs history that
+    covers it; returns (0.0, 0) when none of the window is in the data, so a gap is never read as calm.
+    """
+    days = [d for d in sorted(series) if start <= d <= end]
+    return (math.prod(1 + series[d] for d in days) - 1) * 100 if days else 0.0, len(days)
+
+
+def correlation_spike_vol(weights: Mapping[str, float], daily_vols: Mapping[str, float], rho: float = 0.8) -> float:
+    """Portfolio daily volatility (%) if every pair of holdings suddenly had correlation `rho`.
+
+    Diversification disappears in a panic; compare with the normal-times volatility to see how much
+    protection is an illusion. `daily_vols` are fractions (0.02 = 2%).
+    """
+    if not (-1.0 <= rho <= 1.0):
+        raise ValueError("rho must be in [-1, 1]")
+    names = [n for n, w in weights.items() if w]
+    var = sum(weights[a] * weights[b] * daily_vols[a] * daily_vols[b] * (1.0 if a == b else rho) for a in names for b in names)
+    return math.sqrt(max(var, 0.0)) * 100.0

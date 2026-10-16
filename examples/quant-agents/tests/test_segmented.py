@@ -127,3 +127,32 @@ def test_cli_propose_with_universe(tmp_path, capsys):
                  "--cash", "100000", "--today", "2026-10-14"]) == 0
     out = capsys.readouterr().out
     assert "PROPOSALS" in out and "large" in out and "(nothing is placed)" in out
+
+
+def test_quality_scores_block_weak_names_when_supplied_and_waive_altman_for_financials():
+    u = {
+        "WEAK": Instrument("WEAK", Segment.SMALL, "x", 5.0, 0.0, 0.3, piotroski_f=2),
+        "DISTRESS": Instrument("DISTRESS", Segment.SMALL, "x", 5.0, 0.0, 0.3, altman_z=0.5),
+        "GOOD": Instrument("GOOD", Segment.SMALL, "y", 5.0, 0.0, 0.3, piotroski_f=7, altman_z=3.2),
+        "BANK": Instrument("BANK", Segment.SMALL, "banks", 5.0, 0.0, 0.3, altman_z=0.5),
+    }
+    r = go("\n".join(call(t, 1) for t in u), u)
+    assert {c.ticker for c in r.proposals} == {"GOOD", "BANK"}
+    why = {x.ticker: x.reasons[0] for x in r.research}
+    assert "Piotroski" in why["WEAK"] and "Altman" in why["DISTRESS"]
+
+
+def test_event_risk_is_a_caveat_not_a_block():
+    from quant_agents.events import Event
+
+    u = {"EV": inst("EV", Segment.LARGE, "x")}
+    ev = (Event(date(2026, 10, 18), "results", "EV"), Event(date(2026, 10, 19), "rbi_mpc", None))
+    r = run_segmented(call("EV", 2), state(), RiskPolicy(max_orders_per_day=5), u, TODAY, events=ev)
+    assert r.proposals and any("event risk: results EV in 2d; rbi_mpc in 3d" in c for c in r.proposals[0].caveats)
+
+
+def test_universe_csv_reads_quality_columns(tmp_path):
+    f = tmp_path / "u.csv"
+    f.write_text("ticker,sector,segment,piotroski_f,altman_z\nabc,metals,small,6,2.4\nxyz,metals,small,,\n")
+    u = load_universe(f)
+    assert u["ABC"].piotroski_f == 6 and u["ABC"].altman_z == 2.4 and u["XYZ"].piotroski_f is None
