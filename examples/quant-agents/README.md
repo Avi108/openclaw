@@ -1,6 +1,6 @@
 # quant-agents
 
-Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 141 tests, no network access.
+Agent workflows for equity research: turn messy broker calls into a risk-checked, human-approved list of order proposals. Pure Python standard library, 159 tests, no network access.
 
 ## Why this exists
 
@@ -42,7 +42,7 @@ Key rules, enforced by tests:
 
 ```bash
 pip install -e ".[dev]"
-pytest                                   # 141 tests
+pytest                                   # 159 tests
 quant-agents consensus data/sample_broker_calls.txt --today 2026-10-14
 quant-agents propose   data/sample_broker_calls.txt --today 2026-10-14 --audit audit.jsonl
 quant-agents backtest                    # seeded synthetic prices
@@ -122,6 +122,30 @@ corporate action? GAMMA 2026-05-31: raw -80% vs adjusted -0.2%
 **Not yet verified against NSE:** the client is tested only against a local fake MCP server (JSON and SSE responses, session id echo). The sandbox this was built in could not reach NSE's hosts, so run `quant-agents nse-tools` first on an open network and confirm the tool names and columns. NSE's page states that MCP data confers no right to train or fine-tune AI models: scenario testing is not model training, but read the terms and do not redistribute the data.
 
 Solace Agent Mesh (open source, MCP and A2A support) is one way to host a multi-agent desk around these tools; nothing here depends on it.
+
+## Other markets: Hong Kong and Korea loaders (started)
+
+`markets.py` loads HKEX and KRX files through a **spec**, not a hard-coded layout, because I could not verify either
+exchange's current file schema from this sandbox. HKEX's free daily quotations are published as web pages (historical
+CSV is a paid product, and no official MCP server was found); KRX Data Marketplace offers CSV/Excel downloads and an
+Open API that needs an AUTH_KEY. What the loaders do:
+
+- **Column mapping with a verifier.** Candidate English, Korean and KRX-style API names per field (marked unverified).
+  `quant-agents markets-verify FILE --market krx|hkex [--map close=종가]` shows what mapped, what did not, and where the
+  previous close will come from. A file whose close or symbol cannot be mapped is refused with the column list.
+- **Real-world conventions.** cp949 decoding for Korean files (refuses to guess an encoding), zero-padded codes (HK 5
+  digits, KRX 6), `N/A` or `-` rows as suspended (never zero), thousands separators, and the trade date taken from the file
+  name when a per-day download has no date column.
+- **Previous close is the hard part.** NSE adjusts it for corporate actions; these files may not. Each bar records its basis
+  (`exchange`, `derived_from_change`, `raw_previous_close`, `adjusted_by_actions`). `corporate.unadjusted_jumps` flags moves
+  beyond KRX's +/-30% limit (or a threshold for HK, which has no fixed limit), and `apply_actions` fixes returns once you
+  supply split ratios from exchange notices. The ratio is never inferred from the jump.
+- **Works with the rest:** `scenarios --market krx|hkex` runs the stress report on these files (the output is currency-neutral
+  returns); `avg_traded_value` replaces the rupee-crore helper for other currencies.
+
+Not done yet: live API clients (HKEX programmatic download, KRX Open API), tick sizes and board lots, trading calendars and
+holidays, segment/liquidity thresholds in local currency, and any validation against real files. Treat the alias lists as
+a starting point and run `markets-verify` on the first real file before trusting results.
 
 ## Keeping the skill current
 

@@ -75,6 +75,18 @@ def adv_from_bars(bars: Sequence[Bar], days: int = 20) -> dict[str, float]:
     return {s: mean(x.close * x.volume for x in sorted(v, key=lambda b: b.day)[-days:]) / 1e7 for s, v in by.items()}
 
 
+def avg_traded_value(bars: Sequence[Bar], days: int = 20) -> dict[str, float]:
+    """Average daily traded value per symbol in the file's own currency (HKD, KRW, ...), last `days` sessions.
+
+    `adv_from_bars` divides by 1e7 for Indian crore and is only meaningful for INR bars; use this one for
+    other markets. Segment liquidity floors in `segmented.py` are rupee figures: other markets need their own.
+    """
+    by: dict[str, list[Bar]] = {}
+    for b in bars:
+        by.setdefault(b.symbol, []).append(b)
+    return {s: mean(x.close * x.volume for x in sorted(v, key=lambda b: b.day)[-days:]) for s, v in by.items()}
+
+
 def with_adv(universe: Mapping[str, Instrument], adv: Mapping[str, float]) -> dict[str, Instrument]:
     """Fill liquidity from bhavcopy where the universe file left it blank (never overwrites a given value)."""
     return {t: (replace(i, adv_value_cr=adv[t]) if i.adv_value_cr is None and t in adv else i) for t, i in universe.items()}

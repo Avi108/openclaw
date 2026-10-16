@@ -47,8 +47,9 @@ evidence. Revisit if a data source and a validation plan exist.
 
 ## Open gaps (next candidates)
 
-1. Multi-market adapters: a bhavcopy-like loader for HKEX, KRX, SGX, B3 and JSE (the `Bar` model is already generic;
-   needs per-exchange column maps, calendars, currency and corporate-action conventions).
+1. Multi-market adapters. **Started 2026-10-16:** HKEX and KRX file loaders (`markets.py`, `corporate.py`), spec-driven with a
+   verifier because the real schemas are unconfirmed. Still open: SGX, B3 and JSE; live API clients; tick sizes, board lots,
+   calendars; local-currency liquidity floors; validation on real files.
 2. Promoter and institutional activity for India: bulk/block deals, promoter holding changes, FII/DII flows.
 3. Signal attribution so post-mortems can say which source (broker, segment, rule) was wrong.
 4. Rate, USD and oil sensitivity in stress tests; a composite risk-budget score.

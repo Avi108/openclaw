@@ -12,6 +12,8 @@ from .consensus import build_consensus
 from .ingest import drop_stale, parse_calls
 from .crosscheck import cross_check
 from .cues import build_briefing, load_cues, render, validate_tone
+from .corporate import unadjusted_jumps
+from .markets import SPECS, load_dir, load_file, verify_columns
 from .nse import McpClient, bars_from_csv
 from .papertrade import PaperLedger, post_mortem, report, round_trips
 from .pdf_extract import extract_call, read_pdf_text
@@ -150,13 +152,39 @@ def _cmd_nse_tools(a: argparse.Namespace) -> int:
     return 0
 
 
+def _overrides(pairs: list[str] | None) -> dict[str, str]:
+    return dict(p.split("=", 1) for p in (pairs or []))
+
+
+def _cmd_markets_verify(a: argparse.Namespace) -> int:
+    """Show how a real HKEX/KRX file maps onto our fields before trusting any loader output."""
+    spec = SPECS[a.market]
+    bars, problems, rep = load_file(a.file, spec, default_day=None if not a.day else date.fromisoformat(a.day),
+                                    overrides=_overrides(a.map))
+    print(f"{spec.name}: {len(bars)} rows loaded, {len(problems)} problems; previous close from: {rep.prev_close_source}")
+    print("mapped: " + ", ".join(f"{k}<-{v}" for k, v in rep.mapped.items()))
+    print("missing optional: " + (", ".join(rep.missing_optional) or "none"))
+    print("unmapped columns: " + (", ".join(rep.unmapped_columns) or "none"))
+    for pr in problems[:5]:
+        print(f"  problem: {pr}")
+    jumps = unadjusted_jumps(bars, price_limit_pct=spec.price_limit_pct)
+    if jumps:
+        print(f"{len(jumps)} suspicious jump(s) on unadjusted data, e.g. {jumps[0].symbol} {jumps[0].day} {jumps[0].change_pct:+.0f}%")
+    return 0
+
+
 def _cmd_scenarios(a: argparse.Namespace) -> int:
     weights = {k.upper(): float(v) for k, v in (p.split("=") for p in a.weights.split(","))}
     if abs(sum(weights.values()) - 1.0) > 1e-6:
         print(f"weights sum to {sum(weights.values()):g}, expected 1.0", file=sys.stderr)
         return 2
     bars = []
-    for f in sorted(Path(a.dir).glob("*.csv")):
+    if a.market != "nse":
+        b, problems = load_dir(a.dir, SPECS[a.market], _overrides(a.map))
+        bars = [x for x in b if x.symbol in weights or a.all_symbols]
+        for pr in problems[:3]:
+            print(f"# {pr}", file=sys.stderr)
+    for f in (sorted(Path(a.dir).glob("*.csv")) if a.market == "nse" else []):
         b, problems = bars_from_csv(f.read_text(errors="ignore"))
         bars += [x for x in b if x.symbol in weights or a.all_symbols]
         for pr in problems[:3]:
@@ -308,7 +336,15 @@ def main(argv: list[str] | None = None) -> int:
     sc.add_argument("--value", type=float, default=3800.0)
     sc.add_argument("--horizon", type=int, default=60)
     sc.add_argument("--all-symbols", action="store_true")
+    sc.add_argument("--market", choices=["nse", *SPECS], default="nse", help="file layout: nse (default), hkex or krx")
+    sc.add_argument("--map", action="append", metavar="FIELD=COLUMN", help="override a column mapping, e.g. close=종가 (repeatable)")
     sc.set_defaults(fn=_cmd_scenarios)
+    mv = sub.add_parser("markets-verify", help="check how an HKEX or KRX file maps onto our fields")
+    mv.add_argument("file")
+    mv.add_argument("--market", choices=list(SPECS), required=True)
+    mv.add_argument("--day", help="trade date YYYY-MM-DD when the file has no date column")
+    mv.add_argument("--map", action="append", metavar="FIELD=COLUMN")
+    mv.set_defaults(fn=_cmd_markets_verify)
     x = sub.add_parser("crosscheck", help="compare NSE and BSE bhavcopy folders (joined by ISIN)")
     x.add_argument("nse_dir")
     x.add_argument("bse_dir")
