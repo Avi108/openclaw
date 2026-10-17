@@ -1,6 +1,6 @@
 # Gap analysis: our skill vs the leading public skills
 
-Last reviewed: 2026-10-16. Method: inventoried 15 public repos (global, India, China, emerging markets), cloned
+Last reviewed: 2026-10-17 (no new adoptable capability; see watch/digest-2026-10-17.md). Method: inventoried 15 public repos (global, India, China, emerging markets), cloned
 them read-only, and compared **skill names and their written descriptions** with what this project does. This is a
 feature comparison, not a code audit: no repo's text or code was copied, licenses must be checked before any reuse,
 and repo contents are treated as untrusted data. Star counts and "popularity" are deliberately not used as evidence of
