@@ -269,8 +269,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-10-16T16:47:43.373232+00:00",
-    "head": "b29c6dfc2d4dc82bdfcfc13891e490863283405f",
+    "checked_at": "2026-10-19T01:47:59.772504+00:00",
+    "head": "aec21a0fb02ddb50c851aa14c3672e863a626685",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
@@ -282,7 +282,7 @@
       "cot-contrarian-detector": "58df17a493e0b3af",
       "crypto-regime-analyzer": "e6d9c9da283bcee1",
       "data-quality-checker": "d9473d7f8980aa2b",
-      "dividend-growth-pullback-screener": "1a67d95df900e639",
+      "dividend-growth-pullback-screener": "8b93d82a1910ec4e",
       "downtrend-duration-analyzer": "9d9e0610ad571ad6",
       "drawdown-circuit-breaker": "4a2a9302a0837ee8",
       "dual-axis-skill-reviewer": "6e5a375fe35f4903",
@@ -292,7 +292,7 @@
       "earnings-trade-analyzer": "e9b4405fa6a5cfdb",
       "economic-calendar-fetcher": "0deafe2824625986",
       "economic-calendar-fetcher#2": "0deafe2824625986",
-      "economic-calendar-fetcher#3": "852bd2d9da637386",
+      "economic-calendar-fetcher#3": "5687e8b3b415dea7",
       "edge-candidate-agent": "6c9545ce9662a487",
       "edge-concept-synthesizer": "886f8d94353fc7b6",
       "edge-hint-extractor": "875efa932dbd1df3",
@@ -300,7 +300,7 @@
       "edge-signal-aggregator": "355c21267d5d1245",
       "edge-strategy-designer": "f73918b3935d8b83",
       "edge-strategy-reviewer": "b893b68ca0838048",
-      "exposure-coach": "17cd0765062f1957",
+      "exposure-coach": "c9e3f26ecbf676c6",
       "finviz-screener": "045e5cc06997b915",
       "ftd-detector": "1df3f87cfe9849d7",
       "futures-position-sizer": "ab288bfc8edcfa17",
@@ -308,11 +308,11 @@
       "ibd-distribution-day-monitor": "af7bda67bec71fd2",
       "institutional-flow-tracker": "20ad2715ab0f2a64",
       "kanchi-dividend-review-monitor": "20da33d7dc9c8013",
-      "kanchi-dividend-sop": "db744243980e9ed1",
+      "kanchi-dividend-sop": "99e642f366a8cde9",
       "kanchi-dividend-us-tax-accounting": "084d3ada6b4af792",
       "macro-regime-detector": "a60479b156049b91",
       "manifoldbt-backtester": "1feb63151efc5578",
-      "market-breadth-analyzer": "c6186b6d8f4bca82",
+      "market-breadth-analyzer": "978d976130e357bf",
       "market-environment-analysis": "76d00c0d2a1d0e02",
       "market-environment-analysis#2": "76d00c0d2a1d0e02",
       "market-environment-analysis#3": "8be844fbfc4ffb4f",
@@ -355,7 +355,7 @@
       "trade-performance-coach": "f4f3bfd12d4aa28f",
       "trader-memory-core": "0708e12b2134f18e",
       "trading-skills-navigator": "67007bc937e52dda",
-      "uptrend-analyzer": "237f2d2075f4fde8",
+      "uptrend-analyzer": "e514dea7f48530c8",
       "us-market-bubble-detector": "920d37cf2afab5c9",
       "us-market-bubble-detector#2": "920d37cf2afab5c9",
       "us-market-bubble-detector#3": "0c16de0524dc3da4",
@@ -363,7 +363,7 @@
       "us-stock-analysis#2": "dff770dbb23159d5",
       "us-stock-analysis#3": "dff770dbb23159d5",
       "us-undervalued-growth-screener": "14e17b1ba538ea93",
-      "value-dividend-screener": "8ad3e9773a655d1b",
+      "value-dividend-screener": "0554f7e77deabd75",
       "vcp-screener": "7b817ba7ec2b084c",
       "weekly-performance-digest": "11c98674c88a8ed2"
     }
@@ -398,8 +398,8 @@
     }
   },
   "yennanliu/InvestSkill": {
-    "checked_at": "2026-10-18T01:47:39.554587+00:00",
-    "head": "ada82e4d056325a3ab230b961e72f3b949afb2fc",
+    "checked_at": "2026-10-19T01:47:59.772504+00:00",
+    "head": "dc9fa39fcdea74c9169fcd5bb8f1e8085707d3e6",
     "skills": {
       "10k-digest": "664b51f77376b8b4",
       "bear-case": "22b54171bd70f7c4",
