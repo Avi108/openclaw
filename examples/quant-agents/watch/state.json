@@ -196,35 +196,35 @@
     }
   },
   "himself65/finance-skills": {
-    "checked_at": "2026-10-16T16:47:43.373232+00:00",
-    "head": "cedadc4b9f0f25c072576331a151863c8632a2d6",
+    "checked_at": "2026-10-20T01:48:11.967500+00:00",
+    "head": "73d554d60c0a3f121a30f505680f7a06b2b1fd11",
     "skills": {
-      "company-valuation": "1400498965479ff2",
-      "discord-reader": "baabf7177c692db9",
-      "earnings-preview": "180fed962bf293b1",
-      "earnings-recap": "6f1b9e05798beed8",
-      "estimate-analysis": "5623ad80041a7c88",
-      "etf-premium": "08ef8457d5254094",
-      "finance-sentiment": "cda06b8840cab5d6",
-      "fintel-data": "aca70480b2c4ecb9",
-      "generative-ui": "65a0c18c2deb07fc",
+      "company-valuation": "bb3e65fe377541ee",
+      "discord-reader": "2ab4440ed19a4cf9",
+      "earnings-preview": "d8776e32aab42ef6",
+      "earnings-recap": "203d09612f1e73a9",
+      "estimate-analysis": "dc7f091e7169fa15",
+      "etf-premium": "7730298b2476093e",
+      "finance-sentiment": "1995fc5936b8b8bc",
+      "fintel-data": "dcb856e10a2d99ea",
+      "generative-ui": "f52710b144d3c621",
       "hormuz-strait": "1f179c1a95a7793d",
-      "hyperliquid-reader": "429d8c311a72b11c",
-      "linkedin-reader": "91000fbd5d8fd5fc",
-      "opencli-reader": "8087666d852a7164",
-      "options-payoff": "9bbfdc9f6ea6c252",
+      "hyperliquid-reader": "bae0faaa40c3c5f4",
+      "linkedin-reader": "ce9bbf4a45df2074",
+      "opencli-reader": "0a8520026416d4d5",
+      "options-payoff": "2501e5c0bd1ada25",
       "saas-valuation-compression": "78df9bb1495ec9c2",
       "sepa-strategy": "00ee8f4b473ca038",
-      "skill-creator": "d957be74044c5569",
+      "skill-creator": "25e03bbb869d1300",
       "startup-analysis": "7430e7165004c6cf",
-      "stock-correlation": "28811c4800188122",
-      "stock-liquidity": "c5276aa1dc06a8e2",
-      "telegram-reader": "36aaba55fdad0a15",
-      "tradingview-mcp": "940c90063d15f26f",
-      "tradingview-reader": "6a60c00a67f55c28",
-      "twitter-reader": "a8fcab4699cddd99",
-      "yc-reader": "abfd6873a1353b1c",
-      "yfinance-data": "258750d51191249a"
+      "stock-correlation": "1fc3ebf4751111dd",
+      "stock-liquidity": "4295779f60008708",
+      "telegram-reader": "16cd91e47b4cac26",
+      "tradingview-mcp": "157deb5e7199f7c9",
+      "tradingview-reader": "6258335e38ad6b0a",
+      "twitter-reader": "6a5285541131cf98",
+      "yc-reader": "1172f3200a96c847",
+      "yfinance-data": "502db0ad9e13da4c"
     }
   },
   "liuhao1024/open-skills": {
@@ -269,8 +269,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-10-19T01:47:59.772504+00:00",
-    "head": "aec21a0fb02ddb50c851aa14c3672e863a626685",
+    "checked_at": "2026-10-20T01:48:11.967500+00:00",
+    "head": "cb0f3aadffed6d1089db4b224162c964368baa46",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
@@ -319,7 +319,7 @@
       "market-news-analyst": "a66b8073a7489189",
       "market-news-analyst#2": "a66b8073a7489189",
       "market-news-analyst#3": "1429967e2dd26f8e",
-      "market-top-detector": "8d0b81de2d8f9376",
+      "market-top-detector": "10d854d69d4c1265",
       "mt5-robot-tester": "8048035bb2993727",
       "news-reaction-failure-analyzer": "c1059fe863db786f",
       "options-strategy-advisor": "ab885b1a1464f1e6",
@@ -369,14 +369,14 @@
     }
   },
   "virattt/ai-hedge-fund": {
-    "checked_at": "2026-10-16T16:47:43.373232+00:00",
-    "head": "78b779c1389e2d1452dc29606d2c4126d859b964",
+    "checked_at": "2026-10-20T01:48:11.967500+00:00",
+    "head": "4e1657ddc689e3939c481a8f0955444b10f02dc9",
     "skills": {
       "base": "601a3ee1559a3428",
       "buffett": "cb5d6c57ed7992c4",
       "druckenmiller": "7128960ad1cb48dd",
       "graham": "a95a149607fc02c4",
-      "llm_agent": "d97c29b721211942",
+      "llm_agent": "1037b32500dd0ba3",
       "lynch": "51ed7b27df87eefe",
       "munger": "7afd204bcf950a82",
       "pead": "9fd6998a70f80471"
@@ -398,8 +398,8 @@
     }
   },
   "yennanliu/InvestSkill": {
-    "checked_at": "2026-10-19T01:47:59.772504+00:00",
-    "head": "dc9fa39fcdea74c9169fcd5bb8f1e8085707d3e6",
+    "checked_at": "2026-10-20T01:48:11.967500+00:00",
+    "head": "8c92d307ae0bb87179cd6faf624a1ea13863309b",
     "skills": {
       "10k-digest": "664b51f77376b8b4",
       "bear-case": "22b54171bd70f7c4",
