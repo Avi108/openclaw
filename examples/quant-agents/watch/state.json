@@ -147,8 +147,8 @@
     }
   },
   "ZhuLinsen/daily_stock_analysis": {
-    "checked_at": "2026-10-18T01:47:39.554587+00:00",
-    "head": "7a21cd76952c7fe44a7fc5a6113a5b2b8a16bb32",
+    "checked_at": "2026-10-22T01:48:08.971132+00:00",
+    "head": "ec66bf46caf6993f673bd4be59c883754667b686",
     "skills": {
       "analyze-issue": "6b8ccb75db2565eb",
       "analyze-pr": "af39a1ac6e4e81e8",
@@ -398,8 +398,8 @@
     }
   },
   "yennanliu/InvestSkill": {
-    "checked_at": "2026-10-21T01:47:57.789373+00:00",
-    "head": "a9f595faf6edb2d422904567bedd23e414cad27a",
+    "checked_at": "2026-10-22T01:48:08.971132+00:00",
+    "head": "d9a37b3ee0201995d8079e89956ff4524d283ebc",
     "skills": {
       "10k-digest": "664b51f77376b8b4",
       "bear-case": "22b54171bd70f7c4",
