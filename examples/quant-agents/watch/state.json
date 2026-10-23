@@ -251,8 +251,8 @@
     }
   },
   "quant-sentiment-ai/claude-equity-research": {
-    "checked_at": "2026-10-21T01:47:57.789373+00:00",
-    "head": "833f4f6c712982d044d523cc67d4cc04bcccaa0c",
+    "checked_at": "2026-10-23T01:48:02.798684+00:00",
+    "head": "8e5ce649a001dbf25f6c92f00148b025bc567a3f",
     "skills": {}
   },
   "spikeHongg/china-stock-research-skills": {
@@ -398,8 +398,8 @@
     }
   },
   "yennanliu/InvestSkill": {
-    "checked_at": "2026-10-22T01:48:08.971132+00:00",
-    "head": "d9a37b3ee0201995d8079e89956ff4524d283ebc",
+    "checked_at": "2026-10-23T01:48:02.798684+00:00",
+    "head": "fcde356fec460f8c951f834210b2a4f4be53a5df",
     "skills": {
       "10k-digest": "664b51f77376b8b4",
       "bear-case": "22b54171bd70f7c4",
