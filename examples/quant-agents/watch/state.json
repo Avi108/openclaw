@@ -1,7 +1,7 @@
 {
   "AI4Finance-Foundation/FinRobot": {
-    "checked_at": "2026-10-16T16:47:43.373232+00:00",
-    "head": "2717499b8e30f242640af08c4ad9afd1113c2d45",
+    "checked_at": "2026-10-25T01:47:54.158860+00:00",
+    "head": "63e1884a42ea7b729551a5424b4bd6a65af636e0",
     "skills": {
       "3-statement-model": "28077562d7a81b5a",
       "ai-readiness": "39017ad7a4bc297f",
@@ -251,8 +251,8 @@
     }
   },
   "quant-sentiment-ai/claude-equity-research": {
-    "checked_at": "2026-10-24T01:48:09.787193+00:00",
-    "head": "ed17c6b1850b81643aba5fa552deab819f46cab7",
+    "checked_at": "2026-10-25T01:47:54.158860+00:00",
+    "head": "21c2393eef704cdcbf15453a5f33625edeeca366",
     "skills": {}
   },
   "spikeHongg/china-stock-research-skills": {
@@ -269,8 +269,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-10-20T01:48:11.967500+00:00",
-    "head": "cb0f3aadffed6d1089db4b224162c964368baa46",
+    "checked_at": "2026-10-25T01:47:54.158860+00:00",
+    "head": "52c932329e25a614eea9e55f7aa8e7677e8c0b84",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
@@ -303,7 +303,7 @@
       "exposure-coach": "c9e3f26ecbf676c6",
       "finviz-screener": "045e5cc06997b915",
       "ftd-detector": "1df3f87cfe9849d7",
-      "futures-position-sizer": "ab288bfc8edcfa17",
+      "futures-position-sizer": "4ffecedcbe629b63",
       "fxmacrodata-calendar": "b804ba851c088d2e",
       "ibd-distribution-day-monitor": "af7bda67bec71fd2",
       "institutional-flow-tracker": "20ad2715ab0f2a64",
@@ -326,7 +326,7 @@
       "pair-trade-screener": "770d3df6b54e48b5",
       "parabolic-short-trade-planner": "0ac6931bf88962ba",
       "pead-screener": "88f79002725fbe70",
-      "portfolio-manager": "62e2bdef2d13c1a1",
+      "portfolio-manager": "82b6888a6485ad03",
       "position-sizer": "0fca15a0976e1ba8",
       "pre-trade-discipline-gate": "cd33ad056ae3a612",
       "residual-edge-analyzer": "13fd8e02dfc7359a",
@@ -369,8 +369,8 @@
     }
   },
   "virattt/ai-hedge-fund": {
-    "checked_at": "2026-10-20T01:48:11.967500+00:00",
-    "head": "4e1657ddc689e3939c481a8f0955444b10f02dc9",
+    "checked_at": "2026-10-25T01:47:54.158860+00:00",
+    "head": "29b32f71861480e9bfd48b82cf0d3ca3e5680955",
     "skills": {
       "base": "601a3ee1559a3428",
       "buffett": "cb5d6c57ed7992c4",
@@ -398,8 +398,8 @@
     }
   },
   "yennanliu/InvestSkill": {
-    "checked_at": "2026-10-24T01:48:09.787193+00:00",
-    "head": "4196f278257eedc0c2416f683b0cd3f4b90e8627",
+    "checked_at": "2026-10-25T01:47:54.158860+00:00",
+    "head": "cba40eebdfcca95f0ccbde7afadd96014dfe685d",
     "skills": {
       "10k-digest": "501071519b6167c0",
       "bear-case": "c9088c13dcd142ac",
