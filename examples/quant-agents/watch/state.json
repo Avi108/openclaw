@@ -269,8 +269,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-10-25T01:47:54.158860+00:00",
-    "head": "52c932329e25a614eea9e55f7aa8e7677e8c0b84",
+    "checked_at": "2026-10-27T01:47:53.263517+00:00",
+    "head": "c9b84196a44a56a553293114fdae1f30bdd08c58",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
@@ -341,11 +341,11 @@
       "stanley-druckenmiller-investment": "71a5b770a7d9faa6",
       "stanley-druckenmiller-investment#2": "71a5b770a7d9faa6",
       "stanley-druckenmiller-investment#3": "8048d1134f922cfb",
-      "stockbee-20pct-study": "ea5045f55400f67d",
-      "stockbee-episodic-pivot-analyzer": "b5eac42930c85f62",
-      "stockbee-exhaustion-hammer-screener": "9646ced41a384ebf",
-      "stockbee-momentum-burst-screener": "cfa25c366847d6b2",
-      "stockbee-setup-fluency-trainer": "ae45d220f94c0ad0",
+      "stockbee-20pct-study": "a9f8350dfa031cf8",
+      "stockbee-episodic-pivot-analyzer": "70b59bd244d42ed5",
+      "stockbee-exhaustion-hammer-screener": "dd0a8769bab86a09",
+      "stockbee-momentum-burst-screener": "d93213f0ff59ccbb",
+      "stockbee-setup-fluency-trainer": "34b5af5b9d85e116",
       "strategy-pivot-designer": "782aaf829ac09397",
       "technical-analyst": "0371899d1e4c367e",
       "technical-analyst#2": "0371899d1e4c367e",
