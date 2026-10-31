@@ -1,0 +1,14 @@
+tone: neutral (-0.12) | data coverage 100%
+  GIFT Nifty                             change    +0.28   contribution +0.84
+  Hang Seng (Hong Kong)                  change    -1.24   contribution -0.83
+  Brent crude                            change    +1.62   contribution -0.81
+  India VIX                              change    +4.23   contribution -0.79
+  USD/INR                                change    +0.24   contribution -0.72
+  FII net flow, Rs crore (prior day)     change  -850.00   contribution -0.64
+  Nikkei 225 (Japan)                     change    +0.75   contribution +0.50
+  KOSPI (Korea)                          change    +0.56   contribution +0.37
+  US index futures                       change    +0.17   contribution +0.34
+  US 10-year yield (bps)                 change    +3.00   contribution -0.30
+  Straits Times (Singapore)              change    +0.05   contribution +0.05
+event keywords in headlines (for a human to read, not scored): rbi
+weights are unvalidated judgment; run validate-tone on history before relying on this
