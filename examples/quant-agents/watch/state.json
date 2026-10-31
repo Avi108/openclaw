@@ -251,8 +251,8 @@
     }
   },
   "quant-sentiment-ai/claude-equity-research": {
-    "checked_at": "2026-10-30T01:48:07.490809+00:00",
-    "head": "96d4c99e12f8abc425dc6bfd4666085cd88b788b",
+    "checked_at": "2026-10-31T01:47:52.878146+00:00",
+    "head": "20cb41cd758acbcb1fc1b3181dba2f2d5c9c626c",
     "skills": {}
   },
   "spikeHongg/china-stock-research-skills": {
@@ -369,8 +369,8 @@
     }
   },
   "virattt/ai-hedge-fund": {
-    "checked_at": "2026-10-28T01:48:03.240466+00:00",
-    "head": "b33175caa1289e180b535d663c89b7a0c04b4726",
+    "checked_at": "2026-10-31T01:47:52.878146+00:00",
+    "head": "d3a2b6b2bc3579cf0f5bde9cebeea9754f1eae15",
     "skills": {
       "base": "f27ae60b6bd9a095",
       "buffett": "abc23286dd2fdbbb",
