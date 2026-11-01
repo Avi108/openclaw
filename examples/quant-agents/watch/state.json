@@ -147,8 +147,8 @@
     }
   },
   "ZhuLinsen/daily_stock_analysis": {
-    "checked_at": "2026-10-26T01:48:09.031795+00:00",
-    "head": "4e6226430b76124e5f43b19201fc6338a62f5e1d",
+    "checked_at": "2026-11-01T01:48:17.713768+00:00",
+    "head": "db0570edd008a319d7eff14eda3bc0ef9da620eb",
     "skills": {
       "analyze-issue": "6b8ccb75db2565eb",
       "analyze-pr": "af39a1ac6e4e81e8",
@@ -251,8 +251,8 @@
     }
   },
   "quant-sentiment-ai/claude-equity-research": {
-    "checked_at": "2026-10-31T01:47:52.878146+00:00",
-    "head": "20cb41cd758acbcb1fc1b3181dba2f2d5c9c626c",
+    "checked_at": "2026-11-01T01:48:17.713768+00:00",
+    "head": "4cc2c6f05d818dae7457639bf1dbb923fa1a5d3c",
     "skills": {}
   },
   "spikeHongg/china-stock-research-skills": {
@@ -269,8 +269,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-10-27T01:47:53.263517+00:00",
-    "head": "c9b84196a44a56a553293114fdae1f30bdd08c58",
+    "checked_at": "2026-11-01T01:48:17.713768+00:00",
+    "head": "c03eafba52ef4821fbabe55479eb0ec796be53c0",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
@@ -327,7 +327,7 @@
       "parabolic-short-trade-planner": "0ac6931bf88962ba",
       "pead-screener": "88f79002725fbe70",
       "portfolio-manager": "82b6888a6485ad03",
-      "position-sizer": "0fca15a0976e1ba8",
+      "position-sizer": "0d99d088743630f3",
       "pre-trade-discipline-gate": "cd33ad056ae3a612",
       "residual-edge-analyzer": "13fd8e02dfc7359a",
       "scenario-analyzer": "d5d970761233ad2b",
