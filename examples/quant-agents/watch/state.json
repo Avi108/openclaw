@@ -147,8 +147,8 @@
     }
   },
   "ZhuLinsen/daily_stock_analysis": {
-    "checked_at": "2026-11-01T01:48:17.713768+00:00",
-    "head": "db0570edd008a319d7eff14eda3bc0ef9da620eb",
+    "checked_at": "2026-11-03T01:48:18.244874+00:00",
+    "head": "6625103b00ed6f9bbfcf93df48ac36ded474cd08",
     "skills": {
       "analyze-issue": "6b8ccb75db2565eb",
       "analyze-pr": "af39a1ac6e4e81e8",
@@ -251,8 +251,8 @@
     }
   },
   "quant-sentiment-ai/claude-equity-research": {
-    "checked_at": "2026-11-01T01:48:17.713768+00:00",
-    "head": "4cc2c6f05d818dae7457639bf1dbb923fa1a5d3c",
+    "checked_at": "2026-11-03T01:48:18.244874+00:00",
+    "head": "0555e7f5f3ea697c0160d6a1ed5ef333cb90b034",
     "skills": {}
   },
   "spikeHongg/china-stock-research-skills": {
@@ -269,8 +269,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-11-01T01:48:17.713768+00:00",
-    "head": "c03eafba52ef4821fbabe55479eb0ec796be53c0",
+    "checked_at": "2026-11-03T01:48:18.244874+00:00",
+    "head": "d8e71ce2f0b069eb5b6fca352857c168c35e6c46",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
@@ -311,7 +311,7 @@
       "kanchi-dividend-sop": "99e642f366a8cde9",
       "kanchi-dividend-us-tax-accounting": "084d3ada6b4af792",
       "macro-regime-detector": "a60479b156049b91",
-      "manifoldbt-backtester": "1feb63151efc5578",
+      "manifoldbt-backtester": "950c86c9a7e386a6",
       "market-breadth-analyzer": "978d976130e357bf",
       "market-environment-analysis": "76d00c0d2a1d0e02",
       "market-environment-analysis#2": "76d00c0d2a1d0e02",
@@ -369,8 +369,8 @@
     }
   },
   "virattt/ai-hedge-fund": {
-    "checked_at": "2026-11-02T01:48:09.310327+00:00",
-    "head": "f338578fcd586b99799ef28db534a33043065226",
+    "checked_at": "2026-11-03T01:48:18.244874+00:00",
+    "head": "131c00c6bf1b4a19e2dae3bc87650639124562c0",
     "skills": {
       "base": "f27ae60b6bd9a095",
       "buffett": "abc23286dd2fdbbb",
