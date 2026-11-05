@@ -73,8 +73,8 @@
     }
   },
   "TauricResearch/TradingAgents": {
-    "checked_at": "2026-10-28T01:48:03.240466+00:00",
-    "head": "c4544913a14ed3df5f1ed7b9e8483270ce20682a",
+    "checked_at": "2026-11-05T01:48:05.219327+00:00",
+    "head": "9fa1196fffbcfd9de5146d2dd2869df84ab99838",
     "skills": {
       "aggressive_debator": "f2ddbc28dbeb2786",
       "analyst_execution": "2cee40303e18c19b",
