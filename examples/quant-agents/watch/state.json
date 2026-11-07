@@ -251,13 +251,13 @@
     }
   },
   "quant-sentiment-ai/claude-equity-research": {
-    "checked_at": "2026-11-06T01:48:10.246298+00:00",
-    "head": "e1cccb61a56d9670daecb20de8baa8169c4bd994",
+    "checked_at": "2026-11-07T01:48:25.877497+00:00",
+    "head": "1742000464689ca2cc89c7df2c89afe32b76e633",
     "skills": {}
   },
   "spikeHongg/china-stock-research-skills": {
-    "checked_at": "2026-10-16T16:47:43.373232+00:00",
-    "head": "d49f1f360deac57821d5d6b3aff664dff232acc6",
+    "checked_at": "2026-11-07T01:48:25.877497+00:00",
+    "head": "66bea91d78f55aee97011b29aa64afa641824584",
     "skills": {
       "business-decomposition-order-quality": "64051990cabeced6",
       "china-stock-research-orchestrator": "eccbd7d690fe7e42",
@@ -269,8 +269,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-11-03T01:48:18.244874+00:00",
-    "head": "d8e71ce2f0b069eb5b6fca352857c168c35e6c46",
+    "checked_at": "2026-11-07T01:48:25.877497+00:00",
+    "head": "9e83b8d045be06d8b4bb7f58410f4f8cf9ce347f",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
@@ -311,7 +311,7 @@
       "kanchi-dividend-sop": "99e642f366a8cde9",
       "kanchi-dividend-us-tax-accounting": "084d3ada6b4af792",
       "macro-regime-detector": "a60479b156049b91",
-      "manifoldbt-backtester": "950c86c9a7e386a6",
+      "manifoldbt-backtester": "1fe1dc4cdcfdf77a",
       "market-breadth-analyzer": "978d976130e357bf",
       "market-environment-analysis": "76d00c0d2a1d0e02",
       "market-environment-analysis#2": "76d00c0d2a1d0e02",
@@ -322,7 +322,7 @@
       "market-top-detector": "10d854d69d4c1265",
       "mt5-robot-tester": "8048035bb2993727",
       "news-reaction-failure-analyzer": "c1059fe863db786f",
-      "options-strategy-advisor": "ab885b1a1464f1e6",
+      "options-strategy-advisor": "a4ec842e55f0c38e",
       "pair-trade-screener": "770d3df6b54e48b5",
       "parabolic-short-trade-planner": "0ac6931bf88962ba",
       "pead-screener": "88f79002725fbe70",
