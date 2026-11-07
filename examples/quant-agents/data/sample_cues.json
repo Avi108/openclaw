@@ -1,0 +1,18 @@
+{
+  "_note": "SYNTHETIC example values for format only; replace with real overnight data.",
+  "now": "2026-10-15T03:30:00+00:00",
+  "headlines": ["RBI policy decision due this week", "Brent edges higher on supply worries"],
+  "cues": {
+    "gift_nifty": {"value": 25120, "prev": 25050, "as_of": "2026-10-15T03:25:00+00:00"},
+    "nikkei":     {"value": 40100, "prev": 39800, "as_of": "2026-10-15T03:20:00+00:00"},
+    "hang_seng":  {"value": 19900, "prev": 20150, "as_of": "2026-10-15T03:20:00+00:00"},
+    "kospi":      {"value": 2710,  "prev": 2695,  "as_of": "2026-10-15T03:20:00+00:00"},
+    "sti":        {"value": 3650,  "prev": 3648,  "as_of": "2026-10-15T03:20:00+00:00"},
+    "us_futures": {"value": 5890,  "prev": 5880,  "as_of": "2026-10-15T03:25:00+00:00"},
+    "usd_inr":    {"value": 83.9,  "prev": 83.7,  "as_of": "2026-10-15T03:25:00+00:00"},
+    "brent":      {"value": 81.5,  "prev": 80.2,  "as_of": "2026-10-15T03:25:00+00:00"},
+    "india_vix":  {"value": 14.8,  "prev": 14.2,  "as_of": "2026-10-14T10:00:00+00:00"},
+    "us10y":      {"value": 4.12,  "prev": 4.09,  "as_of": "2026-10-15T03:25:00+00:00"},
+    "fii_net_cr": {"value": -850,  "as_of": "2026-10-14T13:00:00+00:00"}
+  }
+}

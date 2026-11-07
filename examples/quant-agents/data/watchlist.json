@@ -1,0 +1,19 @@
+{
+  "repos": [
+    {"repo": "virattt/ai-hedge-fund", "region": "global", "focus": "investor-persona agents, risk and portfolio managers, backtesting"},
+    {"repo": "TauricResearch/TradingAgents", "region": "global", "focus": "debate-style multi-agent trading framework"},
+    {"repo": "AI4Finance-Foundation/FinRobot", "region": "global", "focus": "agent platform for financial analysis"},
+    {"repo": "tradermonty/claude-trading-skills", "region": "global", "focus": "94 skills: breadth, regime, discipline gates, post-mortems"},
+    {"repo": "himself65/finance-skills", "region": "global", "focus": "valuation, sentiment, liquidity, earnings"},
+    {"repo": "yennanliu/InvestSkill", "region": "global", "focus": "34 skills: DCF, thesis tracker, stress test, tax lens"},
+    {"repo": "xvary-research/claude-code-stock-analysis-skill", "region": "global", "focus": "SEC EDGAR scoring skill"},
+    {"repo": "prof-little-bear/cc-equity-research", "region": "global", "focus": "sell-side style workflow skills"},
+    {"repo": "quant-sentiment-ai/claude-equity-research", "region": "global", "focus": "institutional-style report plugin"},
+    {"repo": "Jelly13124/stock-analyze-skills", "region": "global", "focus": "multi-subagent debate, Kelly sizing"},
+    {"repo": "gauss314/skills", "region": "emerging", "focus": "data skills incl. Argentina (BYMA, BCRA), Altman, Piotroski"},
+    {"repo": "vishalmdi/india-equity-report-skill", "region": "india", "focus": "NSE/BSE reports, anti-hallucination data rules"},
+    {"repo": "spikeHongg/china-stock-research-skills", "region": "china", "focus": "A-share research workflow"},
+    {"repo": "ZhuLinsen/daily_stock_analysis", "region": "china", "focus": "daily analysis across A-share, HK, US"},
+    {"repo": "liuhao1024/open-skills", "region": "china", "focus": "multi-agent A-share skills"}
+  ]
+}

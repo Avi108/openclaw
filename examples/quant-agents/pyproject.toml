@@ -1,0 +1,51 @@
+[project]
+name = "quant-agents"
+version = "0.1.0"
+description = "Agent workflows for equity research: broker-call ingestion, consensus scoring, risk-limited sizing, backtesting, and human-approved order proposals."
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov", "hypothesis", "ruff", "mypy"]
+pdf = ["pypdf"]
+
+[project.scripts]
+quant-agents = "quant_agents.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 130
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "UP", "SIM", "C4", "RUF"]
+# E501: long lines allowed; SIM108/RUF005: readability preferences.
+# B008: default arguments here are frozen dataclasses (immutable), which is the safe case.
+ignore = ["E501", "SIM108", "RUF005", "B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E702", "B007", "RUF012", "RUF059", "RUF043", "RUF017", "SIM300", "F841"]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+warn_unused_ignores = true
+check_untyped_defs = true
+
+[tool.coverage.run]
+source = ["quant_agents"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
