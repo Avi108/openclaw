@@ -147,8 +147,8 @@
     }
   },
   "ZhuLinsen/daily_stock_analysis": {
-    "checked_at": "2026-11-04T01:48:39.799575+00:00",
-    "head": "a52c325fb1389303de23b9826ec1e0190fa309c0",
+    "checked_at": "2026-11-08T01:48:43.677446+00:00",
+    "head": "78a9736d2ae98d10aed2cefeae3e7e6e37cc4f4d",
     "skills": {
       "analyze-issue": "6b8ccb75db2565eb",
       "analyze-pr": "af39a1ac6e4e81e8",
@@ -251,8 +251,8 @@
     }
   },
   "quant-sentiment-ai/claude-equity-research": {
-    "checked_at": "2026-11-07T01:48:25.877497+00:00",
-    "head": "1742000464689ca2cc89c7df2c89afe32b76e633",
+    "checked_at": "2026-11-08T01:48:43.677446+00:00",
+    "head": "f91f5b502a43d0ad3399a40c94f588f17df20311",
     "skills": {}
   },
   "spikeHongg/china-stock-research-skills": {
@@ -269,8 +269,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-11-07T01:48:25.877497+00:00",
-    "head": "9e83b8d045be06d8b4bb7f58410f4f8cf9ce347f",
+    "checked_at": "2026-11-08T01:48:43.677446+00:00",
+    "head": "a1d65fd4500051e267863a7d2229cf66d5f5fed5",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
@@ -279,7 +279,7 @@
       "breakout-trade-planner": "cc819f88031bbb3b",
       "canslim-screener": "e2450caba7335e0d",
       "contrarian-setup-gate": "7ef14d9fcd01b92d",
-      "cot-contrarian-detector": "58df17a493e0b3af",
+      "cot-contrarian-detector": "32e666f68edef7ac",
       "crypto-regime-analyzer": "e6d9c9da283bcee1",
       "data-quality-checker": "d9473d7f8980aa2b",
       "dividend-growth-pullback-screener": "8b93d82a1910ec4e",
@@ -323,10 +323,10 @@
       "mt5-robot-tester": "8048035bb2993727",
       "news-reaction-failure-analyzer": "c1059fe863db786f",
       "options-strategy-advisor": "a4ec842e55f0c38e",
-      "pair-trade-screener": "770d3df6b54e48b5",
+      "pair-trade-screener": "ea835f74a96d36ca",
       "parabolic-short-trade-planner": "0ac6931bf88962ba",
       "pead-screener": "88f79002725fbe70",
-      "portfolio-manager": "82b6888a6485ad03",
+      "portfolio-manager": "34c3184bae366212",
       "position-sizer": "0d99d088743630f3",
       "pre-trade-discipline-gate": "cd33ad056ae3a612",
       "residual-edge-analyzer": "13fd8e02dfc7359a",
@@ -354,7 +354,7 @@
       "trade-hypothesis-ideator": "c779bb26e6553227",
       "trade-performance-coach": "f4f3bfd12d4aa28f",
       "trader-memory-core": "0708e12b2134f18e",
-      "trading-skills-navigator": "67007bc937e52dda",
+      "trading-skills-navigator": "3f780a8df963c4c7",
       "uptrend-analyzer": "e514dea7f48530c8",
       "us-market-bubble-detector": "920d37cf2afab5c9",
       "us-market-bubble-detector#2": "920d37cf2afab5c9",
