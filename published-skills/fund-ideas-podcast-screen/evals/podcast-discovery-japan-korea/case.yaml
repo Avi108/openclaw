@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: podcast-discovery-japan-korea
+expected_outcome: |
+  Uses finance-category charts not overall top 100, caps list, reports transcript availability per show, flags audio-only needing user help, no invented stocks or shows presented as verified.

@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: pasted-transcript-screen
+expected_outcome: |
+  Extracts names, tags them Discussed (not Held), paraphrases without quoting, does not claim the fund holds them, applies thesis, flags needed live research.

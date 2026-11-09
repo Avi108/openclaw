@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: audio-only-episode-no-guessing
+expected_outcome: |
+  States it cannot listen to audio or read the Spotify embed, does not invent stocks, asks for episode title or pasted text/transcript.
