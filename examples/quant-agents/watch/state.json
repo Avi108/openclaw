@@ -147,8 +147,8 @@
     }
   },
   "ZhuLinsen/daily_stock_analysis": {
-    "checked_at": "2026-11-09T01:48:09.026618+00:00",
-    "head": "6bfb66a1b3eb61cfedf88b4d281ae7d84c68b116",
+    "checked_at": "2026-11-10T01:48:41.666846+00:00",
+    "head": "15c7cdc0ca07bd71158e268fb8596f3ae356ad9b",
     "skills": {
       "analyze-issue": "6b8ccb75db2565eb",
       "analyze-pr": "af39a1ac6e4e81e8",
@@ -251,8 +251,8 @@
     }
   },
   "quant-sentiment-ai/claude-equity-research": {
-    "checked_at": "2026-11-09T01:48:09.026618+00:00",
-    "head": "ec7f0c56a083a272194998909b751269cb5ef21f",
+    "checked_at": "2026-11-10T01:48:41.666846+00:00",
+    "head": "fd9ace9c762be835280a7a7a0b286229e314b86d",
     "skills": {}
   },
   "spikeHongg/china-stock-research-skills": {
@@ -269,8 +269,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-11-09T01:48:09.026618+00:00",
-    "head": "84fa61270e75a6d99d6eba1f2ccee12bc876e30e",
+    "checked_at": "2026-11-10T01:48:41.666846+00:00",
+    "head": "163ceb48968c71a701dd9cc77d827258d9b5b348",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
@@ -353,7 +353,7 @@
       "theme-detector": "f25f010c0aa74d7a",
       "trade-hypothesis-ideator": "c779bb26e6553227",
       "trade-performance-coach": "f4f3bfd12d4aa28f",
-      "trader-memory-core": "abd856dc3ed52994",
+      "trader-memory-core": "38fa209225ba98f8",
       "trading-skills-navigator": "3f780a8df963c4c7",
       "uptrend-analyzer": "e514dea7f48530c8",
       "us-market-bubble-detector": "920d37cf2afab5c9",
@@ -369,8 +369,8 @@
     }
   },
   "virattt/ai-hedge-fund": {
-    "checked_at": "2026-11-09T01:48:09.026618+00:00",
-    "head": "6640aca40ce78394762518a5b2f35d924fcd4a3a",
+    "checked_at": "2026-11-10T01:48:41.666846+00:00",
+    "head": "5c553b5222044f6a5527bd377b4104c50ee0ad28",
     "skills": {
       "base": "f27ae60b6bd9a095",
       "buffett": "abc23286dd2fdbbb",
