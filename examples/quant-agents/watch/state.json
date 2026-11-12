@@ -269,8 +269,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-11-10T01:48:41.666846+00:00",
-    "head": "163ceb48968c71a701dd9cc77d827258d9b5b348",
+    "checked_at": "2026-11-12T01:48:15.246630+00:00",
+    "head": "0dae3feba32cd712526b1bb714b8807417c824de",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
