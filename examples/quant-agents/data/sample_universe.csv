@@ -1,0 +1,8 @@
+# SYNTHETIC example matching data/sample_broker_calls.txt. Use real, current AMFI ranks for real tickers.
+ticker,sector,amfi_rank,segment,adv_value_cr,promoter_pledge_pct,debt_to_equity
+ALPHAPWR,power equipment,180,,12.0,,
+BETAHOME,real estate,320,,3.5,2.0,0.6
+GAMMAHOT,hotels,,micro,0.6,0.0,0.1
+DELTAFIN,financials,90,,40,,
+EPSILONBK,banks,60,,80,,
+ZETAMOTO,autos,30,,200,,
