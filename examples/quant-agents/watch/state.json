@@ -147,8 +147,8 @@
     }
   },
   "ZhuLinsen/daily_stock_analysis": {
-    "checked_at": "2026-11-13T01:48:32.004034+00:00",
-    "head": "ab69720f3334d17ac5e6d1265be2e75fbe6d944c",
+    "checked_at": "2026-11-14T01:48:07.281566+00:00",
+    "head": "86d5d1c16f9df46b67dac2a4a17e788ad1bb7e2e",
     "skills": {
       "analyze-issue": "6b8ccb75db2565eb",
       "analyze-pr": "af39a1ac6e4e81e8",
@@ -269,8 +269,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-11-13T01:48:32.004034+00:00",
-    "head": "4251eaaeb05d720f5ffe8e899e3b6ec1cf48e96f",
+    "checked_at": "2026-11-14T01:48:07.281566+00:00",
+    "head": "3bd4b7a2c7329ffb5efef95db2e53d1125b3dc40",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
@@ -289,7 +289,7 @@
       "earnings-calendar": "29873fb5a68c7c1f",
       "earnings-calendar#2": "29873fb5a68c7c1f",
       "earnings-calendar#3": "7a96c303de715cdf",
-      "earnings-trade-analyzer": "e9b4405fa6a5cfdb",
+      "earnings-trade-analyzer": "db6c74f7d7696aad",
       "economic-calendar-fetcher": "0deafe2824625986",
       "economic-calendar-fetcher#2": "0deafe2824625986",
       "economic-calendar-fetcher#3": "5687e8b3b415dea7",
@@ -398,8 +398,8 @@
     }
   },
   "yennanliu/InvestSkill": {
-    "checked_at": "2026-10-25T01:47:54.158860+00:00",
-    "head": "cba40eebdfcca95f0ccbde7afadd96014dfe685d",
+    "checked_at": "2026-11-14T01:48:07.281566+00:00",
+    "head": "f6af133d0b91dc45c51a6901f8ea432d82558fd7",
     "skills": {
       "10k-digest": "501071519b6167c0",
       "bear-case": "c9088c13dcd142ac",
