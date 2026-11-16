@@ -1,6 +1,6 @@
 # Gap analysis: our skill vs the leading public skills
 
-Last reviewed: 2026-10-24 (InvestSkill added compare, credit-check, forensic-accounting, trade-postmortem; see watch/digest-2026-10-24.md). Method: inventoried 15 public repos (global, India, China, emerging markets), cloned
+Last reviewed: 2026-11-16 (InvestSkill added basket-report; see watch/digest-2026-11-16.md). Method: inventoried 15 public repos (global, India, China, emerging markets), cloned
 them read-only, and compared **skill names and their written descriptions** with what this project does. This is a
 feature comparison, not a code audit: no repo's text or code was copied, licenses must be checked before any reuse,
 and repo contents are treated as untrusted data. Star counts and "popularity" are deliberately not used as evidence of
@@ -32,6 +32,7 @@ liuhao1024/open-skills.
 | Tax mechanics | InvestSkill `tax-lens` (US) | **Added** India estimator `tax.py`. Rates must be confirmed (news on 13 Oct 2026 mentions an FM statement on LTCG and STT). Not yet: lot selection, loss harvesting |
 | Earnings and event calendars | `earnings-calendar`, `catalyst-calendar` | **Added** `events.py` caveat in screening (calendar data is supplied, not fetched) |
 | Head-to-head comparison of 2-5 stocks on one table, then a reasoned pick | InvestSkill `compare` (MIT, added 2026-10-24) | **Revisit / adopt, small effort.** Fits `picks` output: line up consensus, quality, valuation and liquidity side by side. Not implemented |
+| Basket report: 2-5 stocks as one linked deliverable from a single shared as-of snapshot (hub page plus one report per ticker) | InvestSkill `basket-report` (MIT, added 2026-11-16) | **Revisit with `compare`, small effort.** The useful idea is one shared dated snapshot so two pages never quote different prices; fits `picks` output. Not implemented |
 | Earnings-quality forensics beyond Beneish and Altman (Sloan accruals, cash-vs-earnings divergence, SBC-adjusted FCF) | InvestSkill `forensic-accounting` | **Partly covered** by `fundamentals.py`. Adding the Sloan accruals ratio and a cash-conversion check is small effort. Not implemented |
 | Debt maturity wall, interest coverage trend, refinancing cost | InvestSkill `credit-check` | **Revisit, medium effort.** Needs debt schedules from filings we do not load; banks and NBFCs need different measures |
 | Process-vs-outcome review and bias tags on closed trades | InvestSkill `trade-postmortem` | **Partly covered** by `paper-review`. Process/outcome matrix is a small add once real trades exist; low value on synthetic data |
