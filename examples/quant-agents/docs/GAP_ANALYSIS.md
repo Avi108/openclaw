@@ -1,6 +1,6 @@
 # Gap analysis: our skill vs the leading public skills
 
-Last reviewed: 2026-11-16 (InvestSkill added basket-report; see watch/digest-2026-11-16.md). Method: inventoried 15 public repos (global, India, China, emerging markets), cloned
+Last reviewed: 2026-11-17 (see watch/digest-2026-11-17.md). Method: inventoried 15 public repos (global, India, China, emerging markets), cloned
 them read-only, and compared **skill names and their written descriptions** with what this project does. This is a
 feature comparison, not a code audit: no repo's text or code was copied, licenses must be checked before any reuse,
 and repo contents are treated as untrusted data. Star counts and "popularity" are deliberately not used as evidence of
@@ -29,7 +29,7 @@ liuhao1024/open-skills.
 | Liquidity: price impact, Amihud | finance-skills `stock-liquidity` | **Added** `liquidity.py` (square-root impact, Amihud) |
 | Staged entries (position ladder) | InvestSkill `position-ladder` | **Added** `ladder.py` (no lot accounting) |
 | Risk-based sizing from a stop, Kelly | claude-trading-skills `position-sizer`, Jelly13124 | **Added** `risk_based_qty`, capped fractional `kelly_fraction` |
-| Tax mechanics | InvestSkill `tax-lens` (US) | **Added** India estimator `tax.py`. Rates must be confirmed (news on 13 Oct 2026 mentions an FM statement on LTCG and STT). Not yet: lot selection, loss harvesting |
+| Tax mechanics | InvestSkill `tax-lens` (US) | **Added** India estimator `tax.py`. Rates must be confirmed (news on 13 Oct 2026 mentions an FM statement on LTCG and STT; the Budget 2026 STT hike of 1 Apr 2026 is for F&O only, and the delivery STT of 0.1% used by `papertrade.CostModel` is reported unchanged, but the Finance Act text was not read). Not yet: lot selection, loss harvesting |
 | Earnings and event calendars | `earnings-calendar`, `catalyst-calendar` | **Added** `events.py` caveat in screening (calendar data is supplied, not fetched) |
 | Head-to-head comparison of 2-5 stocks on one table, then a reasoned pick | InvestSkill `compare` (MIT, added 2026-10-24) | **Revisit / adopt, small effort.** Fits `picks` output: line up consensus, quality, valuation and liquidity side by side. Not implemented |
 | Basket report: 2-5 stocks as one linked deliverable from a single shared as-of snapshot (hub page plus one report per ticker) | InvestSkill `basket-report` (MIT, added 2026-11-16) | **Revisit with `compare`, small effort.** The useful idea is one shared dated snapshot so two pages never quote different prices; fits `picks` output. Not implemented |

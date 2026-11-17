@@ -147,8 +147,8 @@
     }
   },
   "ZhuLinsen/daily_stock_analysis": {
-    "checked_at": "2026-11-16T01:48:03.156329+00:00",
-    "head": "c820915ea0119b1b7952652d7fb148575400f2d9",
+    "checked_at": "2026-11-17T01:48:44.893783+00:00",
+    "head": "aa7228986f0ac8fc78e9147be81dddb277ef342d",
     "skills": {
       "analyze-issue": "6b8ccb75db2565eb",
       "analyze-pr": "af39a1ac6e4e81e8",
@@ -251,8 +251,8 @@
     }
   },
   "quant-sentiment-ai/claude-equity-research": {
-    "checked_at": "2026-11-13T01:48:32.004034+00:00",
-    "head": "15dfe2b863e9241002333804e55a6104c37c415b",
+    "checked_at": "2026-11-17T01:48:44.893783+00:00",
+    "head": "391cdbaa810dc0ae234fae06ed481353639e32be",
     "skills": {}
   },
   "spikeHongg/china-stock-research-skills": {
@@ -269,15 +269,15 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-11-16T01:48:03.156329+00:00",
-    "head": "de4f2328170eb0ce9f6221c3cfdac346d3959040",
+    "checked_at": "2026-11-17T01:48:44.893783+00:00",
+    "head": "60399452891edf47c1da5ce93c7664b31e3b001e",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
       "breadth-chart-analyst#2": "5c1f2cd0f2b03f17",
       "breadth-chart-analyst#3": "d29eede3440ece07",
       "breakout-trade-planner": "cc819f88031bbb3b",
-      "canslim-screener": "c28e7523699cf3a8",
+      "canslim-screener": "4bf5132fa62303ee",
       "contrarian-setup-gate": "d20fa9d851d5c8d7",
       "cot-contrarian-detector": "32e666f68edef7ac",
       "crypto-regime-analyzer": "e6d9c9da283bcee1",
@@ -300,12 +300,12 @@
       "edge-signal-aggregator": "355c21267d5d1245",
       "edge-strategy-designer": "f73918b3935d8b83",
       "edge-strategy-reviewer": "b893b68ca0838048",
-      "exposure-coach": "70d240e2346b8bb8",
+      "exposure-coach": "580f1b4ea595cd64",
       "finviz-screener": "eabdb4fdfa7f1f2d",
       "ftd-detector": "86b773adf9c93577",
       "futures-position-sizer": "4ffecedcbe629b63",
       "fxmacrodata-calendar": "edd6c15a538e1a0d",
-      "ibd-distribution-day-monitor": "948caf4fdf8bae46",
+      "ibd-distribution-day-monitor": "c24a9e36df8da87c",
       "institutional-flow-tracker": "6b8b16283b27ea57",
       "kanchi-dividend-review-monitor": "20da33d7dc9c8013",
       "kanchi-dividend-sop": "35460960f00ba8f7",
@@ -319,7 +319,7 @@
       "market-news-analyst": "a66b8073a7489189",
       "market-news-analyst#2": "a66b8073a7489189",
       "market-news-analyst#3": "a86d8f24c3c46099",
-      "market-top-detector": "10d854d69d4c1265",
+      "market-top-detector": "29b6dc36a5aa1849",
       "mt5-robot-tester": "8048035bb2993727",
       "news-reaction-failure-analyzer": "26f5641f0b9a7860",
       "options-strategy-advisor": "d4806dc0ca3cc389",
@@ -328,7 +328,7 @@
       "pead-screener": "88f79002725fbe70",
       "portfolio-manager": "0f3fb83ae18bce6e",
       "position-sizer": "0d99d088743630f3",
-      "pre-trade-discipline-gate": "7b4fa9ada3666b42",
+      "pre-trade-discipline-gate": "0bb19d3397b0be83",
       "residual-edge-analyzer": "13fd8e02dfc7359a",
       "scenario-analyzer": "d5d970761233ad2b",
       "sector-analyst": "36901b95fd7776b9",
@@ -364,7 +364,7 @@
       "us-stock-analysis#3": "19678412efc9b050",
       "us-undervalued-growth-screener": "017de98e6d331872",
       "value-dividend-screener": "feade05d3b187750",
-      "vcp-screener": "7b817ba7ec2b084c",
+      "vcp-screener": "ebd7516739f69024",
       "weekly-performance-digest": "55f8208f26c4ba4a"
     }
   },
