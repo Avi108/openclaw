@@ -1,0 +1,12 @@
+days analysed=120 (dropped 0) | annualised vol 13.1%
+1-day VaR95 1.33% | CVaR95 1.62%
+worst 1-day: 2026-02-17..2026-02-17 -2.1%; 2026-04-20..2026-04-20 -1.8%; 2026-02-07..2026-02-07 -1.6%
+worst 20-day: 2026-01-19..2026-02-07 -3.8%; 2026-04-10..2026-04-29 -1.5%; 2026-02-10..2026-03-01 -0.8%
+over 30 days: P(drawdown > 15% halt) = 0.0%; 5th-percentile return -2.8%
+market-shock P&L: -5%: -4.9%, -10%: -9.8%, -20%: -19.6%
+days to exit at 10% of daily value: AAA 0.00, SPL 0.00, BBB 0.00
+corporate action? SPL 2026-03-02: raw -80% vs adjusted +0.7%
+note: market proxy is the equal-weight average of the loaded symbols, not the Nifty
+note: betas need >= 30 overlapping days, otherwise 1.0 is assumed
+note: bootstrap resamples past 5-day blocks; it cannot exceed the worst history in the sample
+note: 0 day(s) dropped where a held symbol had no data

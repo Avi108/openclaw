@@ -1,0 +1,14 @@
+# SYNTHETIC demo data: company names are fictional. Format:
+# date | ticker | broker | rating | target <amt> | cmp <amt> | source
+2026-10-12 | ALPHAPWR | Broker A | buy | target Rs 650 | cmp Rs 380 | demo
+2026-10-11 | ALPHAPWR | Broker B | buy | target Rs 550 | cmp Rs 380 | demo
+2026-10-09 | ALPHAPWR | Broker C | outperform | target Rs 750 | cmp Rs 380 | demo
+2026-10-09 | BETAHOME | Broker A | buy | target Rs 1,855 | cmp Rs 1,183 | demo
+2026-10-10 | BETAHOME | Broker D | buy | target Rs 1,775 | cmp Rs 1,183 | demo
+2026-10-06 | GAMMAHOT | Broker E | buy | target Rs 475 | cmp Rs 315 | demo
+2026-10-12 | DELTAFIN | Broker F | buy | target Rs 377.7 | cmp Rs 138 | demo
+2026-10-12 | EPSILONBK | Broker G | buy | target Rs 505 | cmp Rs 400 | demo
+2026-10-13 | EPSILONBK | Broker H | sell | target Rs 310 | cmp Rs 400 | demo
+2026-10-13 | ZETAMOTO | Broker I | buy | target Rs 4,578 | demo
+2026-08-01 | OLDCO | Broker A | buy | target Rs 200 | cmp Rs 100 | demo
+this line is garbage and must be rejected

@@ -1,0 +1,4 @@
+krx: 1 rows loaded, 0 problems; previous close from: close minus published change
+mapped: symbol<-종목코드, name<-종목명, open<-시가, high<-고가, low<-저가, close<-종가, change<-대비, volume<-거래량, value<-거래대금
+missing optional: date, prev_close
+unmapped columns: none

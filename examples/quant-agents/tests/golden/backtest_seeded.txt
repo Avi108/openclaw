@@ -1,0 +1,3 @@
+SYNTHETIC prices (no real market data); demonstrates the engine, not a trading edge.
+momentum  ret=    2.6%  cagr=   2.4%  sharpe= 0.22  maxdd= 13.2%
+buy&hold  ret=   13.6%  cagr=  12.7%  sharpe= 0.61  maxdd= 21.8%

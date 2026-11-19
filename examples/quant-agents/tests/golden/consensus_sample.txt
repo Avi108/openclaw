@@ -1,0 +1,8 @@
+parsed=11 rejected=1 fresh=10
+ticker     brokers  buy%  upside%   score  flags
+ALPHAPWR         3   100       71    51.2  
+BETAHOME         2   100       53    38.9  
+GAMMAHOT         1   100       51    31.8  single-broker
+EPSILONBK        2    50        2     0.5  has-sell
+DELTAFIN         1   100      174     0.0  single-broker,implausible-upside
+ZETAMOTO         1   100      n/a     0.0  single-broker,no-price

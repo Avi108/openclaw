@@ -1,0 +1,21 @@
+piotroski=8
+  positive ROA=True
+  positive operating cash flow=True
+  ROA improved=True
+  cash flow exceeds net income=True
+  leverage fell=True
+  current ratio improved=False
+  no new shares issued=True
+  gross margin improved=True
+  asset turnover improved=True
+altman_z=4.348000 zone=safe
+beneish_m=-2.610025 flagged=False
+  DSRI=0.869565
+  GMI=0.920000
+  AQI=1.000000
+  SGI=1.150000
+  DEPI=1.000000
+  SGAI=0.869565
+  LVGI=0.950000
+  TATA=-0.030000
+red_flags=[]
