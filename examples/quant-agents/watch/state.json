@@ -147,8 +147,8 @@
     }
   },
   "ZhuLinsen/daily_stock_analysis": {
-    "checked_at": "2026-11-18T01:48:26.579027+00:00",
-    "head": "cc85897bb44909b0b7582dcbd564dbb417c562f2",
+    "checked_at": "2026-11-19T01:48:25.907920+00:00",
+    "head": "3acb2c5b585cc038bad7ed3fcdb9a7f898667ff0",
     "skills": {
       "analyze-issue": "6b8ccb75db2565eb",
       "analyze-pr": "af39a1ac6e4e81e8",
@@ -269,8 +269,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-11-18T01:48:26.579027+00:00",
-    "head": "a627d17dd1d8fde1c8fa73b3cc69ffe83b33cb71",
+    "checked_at": "2026-11-19T01:48:25.907920+00:00",
+    "head": "34b848b41f5741435bb4791692a6c0c7a66c0597",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
@@ -327,7 +327,7 @@
       "parabolic-short-trade-planner": "726fdeb842e8e7fa",
       "pead-screener": "88f79002725fbe70",
       "portfolio-manager": "0f3fb83ae18bce6e",
-      "position-sizer": "0d99d088743630f3",
+      "position-sizer": "b0eda467eef9c080",
       "pre-trade-discipline-gate": "0bb19d3397b0be83",
       "residual-edge-analyzer": "13fd8e02dfc7359a",
       "scenario-analyzer": "d5d970761233ad2b",
