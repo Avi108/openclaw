@@ -147,13 +147,13 @@
     }
   },
   "ZhuLinsen/daily_stock_analysis": {
-    "checked_at": "2026-11-19T01:48:25.907920+00:00",
-    "head": "3acb2c5b585cc038bad7ed3fcdb9a7f898667ff0",
+    "checked_at": "2026-11-20T01:47:58.886649+00:00",
+    "head": "92f0209ec5325c152a7532d714a69e09d102399a",
     "skills": {
-      "analyze-issue": "6b8ccb75db2565eb",
-      "analyze-pr": "af39a1ac6e4e81e8",
+      "analyze-issue": "934f1465d01493a8",
+      "analyze-pr": "8303a180bc45d2c9",
       "daily_stock_analysis": "8439b39109530506",
-      "fix-issue": "18f98a7374c20714",
+      "fix-issue": "29d0d4b1301dc6ab",
       "grok_bot": "c0e01aff19380dd7"
     }
   },
@@ -251,8 +251,8 @@
     }
   },
   "quant-sentiment-ai/claude-equity-research": {
-    "checked_at": "2026-11-18T01:48:26.579027+00:00",
-    "head": "4e09956896ba000f2a3b644c011ba11db1732d00",
+    "checked_at": "2026-11-20T01:47:58.886649+00:00",
+    "head": "a11a1e41cef267be0eadb92b2efbdd1b9ea552a2",
     "skills": {}
   },
   "spikeHongg/china-stock-research-skills": {
@@ -269,8 +269,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-11-19T01:48:25.907920+00:00",
-    "head": "34b848b41f5741435bb4791692a6c0c7a66c0597",
+    "checked_at": "2026-11-20T01:47:58.886649+00:00",
+    "head": "f95e770591b56fd83b9917175f5a7e8fe9ac47dc",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
@@ -283,7 +283,7 @@
       "crypto-regime-analyzer": "e6d9c9da283bcee1",
       "data-quality-checker": "df1916be857c8495",
       "dividend-growth-pullback-screener": "37882b267084663c",
-      "downtrend-duration-analyzer": "9d9e0610ad571ad6",
+      "downtrend-duration-analyzer": "7a0d0a85aff7618e",
       "drawdown-circuit-breaker": "4a2a9302a0837ee8",
       "dual-axis-skill-reviewer": "6e5a375fe35f4903",
       "earnings-calendar": "29873fb5a68c7c1f",
@@ -350,7 +350,7 @@
       "technical-analyst": "0371899d1e4c367e",
       "technical-analyst#2": "0371899d1e4c367e",
       "technical-analyst#3": "1dd9a5d44d72abca",
-      "theme-detector": "8612a8a8c445e6d3",
+      "theme-detector": "39e0eab07a27b107",
       "trade-hypothesis-ideator": "c779bb26e6553227",
       "trade-performance-coach": "f4f3bfd12d4aa28f",
       "trader-memory-core": "be7c70b98ed509ff",
