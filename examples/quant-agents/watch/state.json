@@ -147,8 +147,8 @@
     }
   },
   "ZhuLinsen/daily_stock_analysis": {
-    "checked_at": "2026-11-20T01:47:58.886649+00:00",
-    "head": "92f0209ec5325c152a7532d714a69e09d102399a",
+    "checked_at": "2026-11-21T01:48:10.347471+00:00",
+    "head": "fe3c03f7337971a639dfde23cfa11ff03a722606",
     "skills": {
       "analyze-issue": "934f1465d01493a8",
       "analyze-pr": "8303a180bc45d2c9",
@@ -251,8 +251,8 @@
     }
   },
   "quant-sentiment-ai/claude-equity-research": {
-    "checked_at": "2026-11-20T01:47:58.886649+00:00",
-    "head": "a11a1e41cef267be0eadb92b2efbdd1b9ea552a2",
+    "checked_at": "2026-11-21T01:48:10.347471+00:00",
+    "head": "9b6c5544d014ad0d8e12f3baedeabfc0d695bac5",
     "skills": {}
   },
   "spikeHongg/china-stock-research-skills": {
@@ -269,8 +269,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-11-20T01:47:58.886649+00:00",
-    "head": "f95e770591b56fd83b9917175f5a7e8fe9ac47dc",
+    "checked_at": "2026-11-21T01:48:10.347471+00:00",
+    "head": "901985468f4dd4a9c45f460345b7df1991302b24",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
