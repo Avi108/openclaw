@@ -147,14 +147,18 @@
     }
   },
   "ZhuLinsen/daily_stock_analysis": {
-    "checked_at": "2026-11-21T01:48:10.347471+00:00",
-    "head": "fe3c03f7337971a639dfde23cfa11ff03a722606",
+    "checked_at": "2026-11-22T01:48:01.368008+00:00",
+    "head": "bd7b7679948475861942a8e3840b54acd554029e",
     "skills": {
-      "analyze-issue": "934f1465d01493a8",
-      "analyze-pr": "8303a180bc45d2c9",
-      "daily_stock_analysis": "8439b39109530506",
-      "fix-issue": "29d0d4b1301dc6ab",
-      "grok_bot": "c0e01aff19380dd7"
+      "analyze-issue": "bee4172915f1b9c5",
+      "analyze-issue#2": "bee4172915f1b9c5",
+      "analyze-pr": "4a37352b739a5f81",
+      "analyze-pr#2": "4a37352b739a5f81",
+      "daily_stock_analysis": "b2bb85f663a96c74",
+      "fix-issue": "e976b53aa1c5021c",
+      "fix-issue#2": "e976b53aa1c5021c",
+      "grok_bot": "7a205c11da70916e",
+      "stock_analyzer": "b2bb85f663a96c74"
     }
   },
   "gauss314/skills": {
@@ -251,8 +255,8 @@
     }
   },
   "quant-sentiment-ai/claude-equity-research": {
-    "checked_at": "2026-11-21T01:48:10.347471+00:00",
-    "head": "9b6c5544d014ad0d8e12f3baedeabfc0d695bac5",
+    "checked_at": "2026-11-22T01:48:01.368008+00:00",
+    "head": "38ca8894773a137f6a193f62795cdeeb2189750d",
     "skills": {}
   },
   "spikeHongg/china-stock-research-skills": {
@@ -269,8 +273,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-11-21T01:48:10.347471+00:00",
-    "head": "901985468f4dd4a9c45f460345b7df1991302b24",
+    "checked_at": "2026-11-22T01:48:01.368008+00:00",
+    "head": "917a9a6fa0784164728021ff93d862fc34367b56",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
@@ -283,7 +287,7 @@
       "crypto-regime-analyzer": "e6d9c9da283bcee1",
       "data-quality-checker": "df1916be857c8495",
       "dividend-growth-pullback-screener": "37882b267084663c",
-      "downtrend-duration-analyzer": "7a0d0a85aff7618e",
+      "downtrend-duration-analyzer": "d5e3fd38ef853f5a",
       "drawdown-circuit-breaker": "4a2a9302a0837ee8",
       "dual-axis-skill-reviewer": "6e5a375fe35f4903",
       "earnings-calendar": "29873fb5a68c7c1f",
@@ -300,19 +304,19 @@
       "edge-signal-aggregator": "355c21267d5d1245",
       "edge-strategy-designer": "f73918b3935d8b83",
       "edge-strategy-reviewer": "b893b68ca0838048",
-      "exposure-coach": "580f1b4ea595cd64",
+      "exposure-coach": "a55c0111d64dcee2",
       "finviz-screener": "eabdb4fdfa7f1f2d",
-      "ftd-detector": "86b773adf9c93577",
+      "ftd-detector": "174b6603d80161cc",
       "futures-position-sizer": "4ffecedcbe629b63",
       "fxmacrodata-calendar": "edd6c15a538e1a0d",
       "ibd-distribution-day-monitor": "c24a9e36df8da87c",
       "institutional-flow-tracker": "6b8b16283b27ea57",
       "kanchi-dividend-review-monitor": "20da33d7dc9c8013",
-      "kanchi-dividend-sop": "4c1a5b0e1ce43429",
+      "kanchi-dividend-sop": "fcd9ebd402b55b57",
       "kanchi-dividend-us-tax-accounting": "084d3ada6b4af792",
-      "macro-regime-detector": "a60479b156049b91",
+      "macro-regime-detector": "46a19fdf3b718a51",
       "manifoldbt-backtester": "1fe1dc4cdcfdf77a",
-      "market-breadth-analyzer": "978d976130e357bf",
+      "market-breadth-analyzer": "3d73ea43a60f1a72",
       "market-environment-analysis": "76d00c0d2a1d0e02",
       "market-environment-analysis#2": "76d00c0d2a1d0e02",
       "market-environment-analysis#3": "8be844fbfc4ffb4f",
@@ -325,7 +329,7 @@
       "options-strategy-advisor": "d4806dc0ca3cc389",
       "pair-trade-screener": "52bee2ccd6c7c49b",
       "parabolic-short-trade-planner": "726fdeb842e8e7fa",
-      "pead-screener": "88f79002725fbe70",
+      "pead-screener": "47cf00d5dc0725f5",
       "portfolio-manager": "0f3fb83ae18bce6e",
       "position-sizer": "b0eda467eef9c080",
       "pre-trade-discipline-gate": "0bb19d3397b0be83",
@@ -353,7 +357,7 @@
       "theme-detector": "39e0eab07a27b107",
       "trade-hypothesis-ideator": "c779bb26e6553227",
       "trade-performance-coach": "f4f3bfd12d4aa28f",
-      "trader-memory-core": "be7c70b98ed509ff",
+      "trader-memory-core": "33e11ae48faa49b7",
       "trading-skills-navigator": "65db18136321fca0",
       "uptrend-analyzer": "e514dea7f48530c8",
       "us-market-bubble-detector": "920d37cf2afab5c9",
@@ -364,7 +368,7 @@
       "us-stock-analysis#3": "19678412efc9b050",
       "us-undervalued-growth-screener": "017de98e6d331872",
       "value-dividend-screener": "feade05d3b187750",
-      "vcp-screener": "04f0c3c659a525f1",
+      "vcp-screener": "48f70110d416244b",
       "weekly-performance-digest": "55f8208f26c4ba4a"
     }
   },
