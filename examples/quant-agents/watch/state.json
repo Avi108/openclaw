@@ -73,8 +73,8 @@
     }
   },
   "TauricResearch/TradingAgents": {
-    "checked_at": "2026-11-25T01:47:59.440825+00:00",
-    "head": "81501e0f108c9960f55f0f45b79cafa7857f2c0a",
+    "checked_at": "2026-11-26T01:47:43.277275+00:00",
+    "head": "121265d18d467ac717f7af99cb0d669c15d2e73c",
     "skills": {
       "company-snapshot": "078aa19cd09fef9d",
       "dcf-valuation": "844aeff83f0305fb",
@@ -95,16 +95,16 @@
     }
   },
   "ZhuLinsen/daily_stock_analysis": {
-    "checked_at": "2026-11-25T01:47:59.440825+00:00",
-    "head": "106f4c66eb0cb71f263a216c5b336d08a08f5d3b",
+    "checked_at": "2026-11-26T01:47:43.277275+00:00",
+    "head": "1a9117115bb2636919f4863798cd4e877394b321",
     "skills": {
       "analyze-issue": "bee4172915f1b9c5",
       "analyze-issue#2": "bee4172915f1b9c5",
-      "analyze-pr": "4a37352b739a5f81",
-      "analyze-pr#2": "4a37352b739a5f81",
+      "analyze-pr": "a8160e18d7127401",
+      "analyze-pr#2": "a8160e18d7127401",
       "daily_stock_analysis": "b2bb85f663a96c74",
-      "fix-issue": "e976b53aa1c5021c",
-      "fix-issue#2": "e976b53aa1c5021c",
+      "fix-issue": "4b010c7da940feea",
+      "fix-issue#2": "4b010c7da940feea",
       "grok_bot": "7a205c11da70916e",
       "stock_analyzer": "b2bb85f663a96c74"
     }
@@ -203,8 +203,8 @@
     }
   },
   "quant-sentiment-ai/claude-equity-research": {
-    "checked_at": "2026-11-25T01:47:59.440825+00:00",
-    "head": "8066efb3d0f8def9ada50ee99261c913e00db787",
+    "checked_at": "2026-11-26T01:47:43.277275+00:00",
+    "head": "88b332f29d934303ec51dc80a030ef4342cf287f",
     "skills": {}
   },
   "spikeHongg/china-stock-research-skills": {
@@ -221,8 +221,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-11-24T01:47:58.973451+00:00",
-    "head": "4080042a7863f5eeb48aabeaf60bd547efb99949",
+    "checked_at": "2026-11-26T01:47:43.277275+00:00",
+    "head": "5de030b068d175d6ed936e8ca1d31325d4820196",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
