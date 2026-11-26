@@ -1,0 +1,5 @@
+calls=60 scored=60 (unscored: missing price/history or window not finished)
+mean implied upside 41.9% | mean realized 29.2% | overstatement 12.7 pts
+target hit rate 43% | rank IC +0.475 | permutation p=0.000
+realized by implied-upside tercile: low 11.7% / mid 28.5% / high 47.5%
+verdict: higher targets did rank higher on returns (check sample size and overlap)

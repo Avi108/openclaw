@@ -1,0 +1,12 @@
+portfolio 100,000: proposals=2 queued=1 research=2 (nothing is placed)
+
+PROPOSALS (today)
+  mid    power equipment    ALPHAPWR            4000  upside 71%, 3 broker(s)
+  small  real estate        BETAHOME            2000  upside 53%, 2 broker(s)
+
+QUEUED (valid; over today's order limit)
+  micro  hotels             GAMMAHOT            1000  upside 51%, 1 broker(s)  [thin coverage (1 broker)]
+
+DID NOT QUALIFY
+  large  financials         DELTAFIN       unscorable (single-broker, implausible-upside) | needs >= 2 broker(s)
+  large  autos              ZETAMOTO       unscorable (single-broker, no-price) | needs >= 2 broker(s)
