@@ -95,8 +95,8 @@
     }
   },
   "ZhuLinsen/daily_stock_analysis": {
-    "checked_at": "2026-11-27T01:48:19.066394+00:00",
-    "head": "a780a5b15d8d67639c9db61a4d7914166c34e9ab",
+    "checked_at": "2026-11-28T01:47:44.052746+00:00",
+    "head": "4728c73a933a0b69a553289f70f443cae57e4d03",
     "skills": {
       "analyze-issue": "bee4172915f1b9c5",
       "analyze-issue#2": "bee4172915f1b9c5",
@@ -221,8 +221,8 @@
     }
   },
   "tradermonty/claude-trading-skills": {
-    "checked_at": "2026-11-27T01:48:19.066394+00:00",
-    "head": "4623c0a2f1b762052eb5928e02c3aa4f103dffa2",
+    "checked_at": "2026-11-28T01:47:44.052746+00:00",
+    "head": "a598d563196818887b34d38cbee499e5710aef12",
     "skills": {
       "backtest-expert": "f2c9ce6501b574cd",
       "breadth-chart-analyst": "5c1f2cd0f2b03f17",
@@ -275,7 +275,7 @@
       "mt5-robot-tester": "8048035bb2993727",
       "news-reaction-failure-analyzer": "d1e46a00ba556225",
       "options-strategy-advisor": "fe6d8241ad9eb2eb",
-      "pair-trade-screener": "52bee2ccd6c7c49b",
+      "pair-trade-screener": "f64388c30f125a44",
       "parabolic-short-trade-planner": "d1458b33b541fc77",
       "pead-screener": "47cf00d5dc0725f5",
       "portfolio-manager": "0f3fb83ae18bce6e",
